@@ -333,8 +333,7 @@ export function generateContractPDF(contractData: BackendContract) {
       contractData.branch.address ? contractData.branch.address : ","
     } Mail: alumnos@esmeraschool.com",
     "`,
-    "Quinta. Con la firma del presente documento el contrato queda en firme no habiendo lugar a desestimación a partir de este acto de",
-    "bienvenida, entrega de material o inicio del curso.",
+    "Quinta. Con la firma del presente documento el contrato queda en firme no habiendo lugar a desestimación.",
     "En caso de que el Cliente incurra en impago de la deuda adquirida mediante el presente acuerdo de financiación, la empresa prestadora del ",
     "servicio realizará las notificaciones correspondientes para informar al Cliente de la situación de morosidad. Si, tras dichas notificaciones, el Cliente",
     "no regulariza el pago pendiente, la empresa se reserva el derecho de registrar sus datos personales en el fichero ASNEF (Asociación Nacional de ",
