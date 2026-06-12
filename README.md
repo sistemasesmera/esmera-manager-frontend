@@ -65,3 +65,7 @@ A major update with comprehensive redesign and modern React patterns implementat
 ## License
 
 Refer to our [LICENSE](https://tailadmin.com/license) page for more information.
+
+## Acceso Claude Code
+
+Claude Code tiene acceso configurado a este repositorio (push de prueba: 2026-06-12).
