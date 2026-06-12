@@ -38,7 +38,6 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Mis Contratos", path: "/my-contracts" },
       { name: "Crear", path: "/contract-create" },
-      { name: "Crear - Monday", path: "/contract-create-monday" },
     ],
   },
 
