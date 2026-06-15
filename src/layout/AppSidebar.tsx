@@ -11,6 +11,8 @@ import {
   GroupIcon,
   FolderIcon,
   FileIcon,
+  PieChartIcon,
+  DocsIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { RootState } from "../store";
@@ -48,6 +50,16 @@ const navItems: NavItem[] = [
   },
 
   {
+    icon: <PieChartIcon />,
+    name: "Leads",
+    subItems: [
+      { name: "Listado", path: "/leads" },
+      { name: "Pipeline", path: "/leads/pipeline" },
+      { name: "Resumen", path: "/crm" },
+    ],
+  },
+
+  {
     icon: <FolderIcon />,
     name: "Cursos",
     path: "/courses",
@@ -57,6 +69,12 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "Perfil",
     path: "/profile",
+  },
+
+  {
+    icon: <DocsIcon />,
+    name: "Manual de Usuario",
+    path: "/manual",
   },
 ];
 

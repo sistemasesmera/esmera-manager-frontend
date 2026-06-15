@@ -53,11 +53,14 @@ import CreateContracts from "./pages/Contracts/CreateContracts";
 import Alumns from "./pages/Alumns/Alumns";
 import Courses from "./pages/Courses/Courses";
 import Commercials from "./pages/Commercials/Commercials";
-import CreateContractsMonday from "./pages/Contracts/CreateContractsMonday";
 import { NotificationProvider } from "./context/NotificationContext";
 import ContractsPage from "./pages/Informes/ContractsPage";
 import Contracts from "./pages/Contracts/Contracts";
 import DashboardComerciales from "./pages/Dashboard/Dashboard";
+import Leads from "./pages/Leads/Leads";
+import LeadsPipeline from "./pages/Leads/LeadsPipeline";
+import Crm from "./pages/Dashboard/Crm";
+import ManualUsuario from "./pages/Manual/ManualUsuario";
 
 export default function App() {
   return (
@@ -91,18 +94,22 @@ export default function App() {
                 <Route path="/my-contracts" element={<MyContracts />} />
                 <Route path="/contracts" element={<Contracts />} />
                 <Route path="/contract-create" element={<CreateContracts />} />
-                <Route
-                  path="/contract-create-monday"
-                  element={<CreateContractsMonday />}
-                />
 
                 {/* Alumns Page*/}
                 <Route path="/alumns" element={<Alumns />} />
+
+                {/* Leads Page*/}
+                <Route path="/leads" element={<Leads />} />
+                <Route path="/leads/pipeline" element={<LeadsPipeline />} />
+                <Route path="/crm" element={<Crm />} />
 
                 {/* Courses Page*/}
                 <Route path="/courses" element={<Courses />} />
 
                 <Route path="/dashboard" element={<DashboardComerciales />} />
+
+                {/* Manual de Usuario */}
+                <Route path="/manual" element={<ManualUsuario />} />
 
                 {/* 404 Route */}
                 <Route path="/*" element={<NotFound />} />

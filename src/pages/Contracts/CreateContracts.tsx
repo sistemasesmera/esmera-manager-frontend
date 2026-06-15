@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import Step1 from "../../components/contracts/CreateContractSteps/Step1";
@@ -18,6 +19,9 @@ import generateContractPDF from "../../utils/generateContractPDF";
 
 export default function CreateContracts() {
   const user = useSelector((state: RootState) => state.auth.user);
+  const location = useLocation();
+  const preselectedAlumn = (location.state as { alumn?: Alumn } | null)
+    ?.alumn;
 
   const [step, setStep] = useState(1);
   const steps = [
@@ -28,7 +32,7 @@ export default function CreateContracts() {
     "Confirmación",
   ];
   const [contractData, setContractData] = useState<ContractData>({
-    alumn: null,
+    alumn: preselectedAlumn ?? null,
     guarantor: null,
     course: null,
     contract: { contractDate: new Date().toISOString().split("T")[0] }, // Inicializa la fecha de hoy directamente

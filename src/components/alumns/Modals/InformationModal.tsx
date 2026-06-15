@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../../ui/button/Button";
 import { Modal } from "../../ui/modal";
 import { useModal } from "../../../hooks/useModal";
@@ -18,8 +19,14 @@ export default function InformationModal({ alumn, onUpdate }: AlumnModalProps) {
   const [changes, setChanges] = useState<Partial<Alumn>>({});
   const [saving, setSaving] = useState(false);
   const { showNotification } = useNotification();
+  const navigate = useNavigate();
 
   const isReadOnly = false;
+
+  const handleCreateContract = () => {
+    closeModal();
+    navigate("/contract-create", { state: { alumn } });
+  };
 
   const openModalWithReset = () => {
     setChanges({});
@@ -249,6 +256,14 @@ export default function InformationModal({ alumn, onUpdate }: AlumnModalProps) {
           </div>
 
           <div className="flex items-center justify-end w-full gap-2 mt-4">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCreateContract}
+              type="button"
+            >
+              Crear otro contrato para este alumno
+            </Button>
             <Button
               size="sm"
               variant="outline"

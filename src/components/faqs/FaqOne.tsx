@@ -39,7 +39,7 @@ const FaqOne: React.FC<FaqOneProps> = ({
       {/* Accordion Content */}
       {isOpen && (
         <div className="px-6 py-7">
-          <p className="text-base text-gray-500 dark:text-gray-400">
+          <p className="text-base text-gray-500 dark:text-gray-400 whitespace-pre-line">
             {content}
           </p>
         </div>
