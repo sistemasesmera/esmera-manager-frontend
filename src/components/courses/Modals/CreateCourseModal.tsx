@@ -5,8 +5,6 @@ import { Modal } from "../../ui/modal";
 import Button from "../../ui/button/Button";
 import Label from "../../form/Label";
 import Input from "../../form/input/InputField";
-import SpinnerFour from "../../ui/spinner/SpinnerFour";
-import Tooltip from "../../ui/tooltip/Tooltip";
 import { useModal } from "../../../hooks/useModal";
 import axiosInstance from "../../../axios/axiosConfig";
 import { useNotification } from "../../../context/NotificationContext";
@@ -15,156 +13,99 @@ type Props = {
   onCourseCreated: (courseData: any) => void;
 };
 
-function CreateCourseModal({ onCourseCreated }: Props) {
+export default function CreateCourseModal({ onCourseCreated }: Props) {
   const { isOpen, openModal, closeModal } = useModal();
   const { user } = useSelector((state: RootState) => state.auth);
-
   const { showNotification } = useNotification();
-
   const isCommercial = user?.role === "COMMERCIAL";
 
-  const [formData, setFormData] = useState({
-    name: "",
-  });
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleCloseModal = () => {
-    setFormData({ name: "" });
-    setErrors({});
+  const handleClose = () => {
+    setName("");
     closeModal();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-      const { data: newCourse } = await axiosInstance.post(
-        "/courses",
-        formData
-      );
-
-      // Notificación de éxito
+      const { data } = await axiosInstance.post("/courses", { name });
       showNotification("success", "Crear Curso", "Curso creado correctamente");
-
-      // Avisar al padre para actualizar lista
-      onCourseCreated(newCourse);
-
-      handleCloseModal();
+      onCourseCreated(data);
+      handleClose();
     } catch (error: any) {
-      console.error(
-        "Error al crear curso:",
-        error.response?.data || error.message
-      );
-
-      const backendMessage = error.response?.data?.message;
-
-      if (backendMessage === "Ya existe un curso con este nombre") {
-        // Notificación específica
-        showNotification("error", "Crear Curso", backendMessage);
-      } else {
-        // Notificación genérica
-        showNotification("error", "Crear Curso", "Error al crear el curso");
-      }
+      const msg = error.response?.data?.message;
+      showNotification("error", "Crear Curso", msg ?? "Error al crear el curso");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
-      {/* Botón de abrir modal con tooltip */}
-      <Tooltip
-        content={
-          isCommercial
-            ? "No tienes permisos para hacer esta acción"
-            : "Crear Curso Nuevo"
-        }
-        position="left"
+    <>
+      <Button
+        size="sm"
+        variant="primary"
+        onClick={openModal}
+        disabled={isCommercial}
+        title={isCommercial ? "Sin permisos" : undefined}
       >
-        <button
-          disabled={isCommercial}
-          onClick={openModal}
-          className={`
-            flex items-center justify-center gap-2 p-2 rounded-full
-            text-sm font-medium text-white transition-colors shadow-md
-            ${
-              isCommercial
-                ? "bg-gray-400 cursor-not-allowed opacity-80"
-                : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-            }
-          `}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-        </button>
-      </Tooltip>
+        + Nuevo curso
+      </Button>
 
-      {/* Modal */}
       <Modal
         isOpen={isOpen}
-        onClose={handleCloseModal}
-        className="max-w-[600px] p-5 lg:p-10"
+        onClose={handleClose}
+        showCloseButton={false}
+        className="max-w-[95%] lg:max-w-[440px] p-0 overflow-hidden"
       >
-        <form onSubmit={handleSubmit}>
-          <h4 className="mb-6 text-lg font-medium text-gray-800 dark:text-white/90">
-            Crear Curso
-          </h4>
-
-          {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <SpinnerFour />
+        {/* Header */}
+        <div className="bg-gradient-to-r from-emerald-700 to-teal-600 px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200 mb-0.5">
+                Nuevo
+              </p>
+              <h4 className="text-lg font-bold text-white">Crear curso</h4>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-1">
-              <div className="col-span-1">
-                <Label>Nombre</Label>
-                <Input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder="MASTER EN BARBERIA"
-                  error={!!errors.name}
-                  hint={errors.name}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center justify-end w-full gap-3 mt-6">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleCloseModal}
-              disabled={loading}
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
             >
-              Cerrar
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path fillRule="evenodd" clipRule="evenodd" d="M6.04289 16.5413C5.65237 16.9318 5.65237 17.565 6.04289 17.9555C6.43342 18.346 7.06658 18.346 7.45711 17.9555L11.9987 13.4139L16.5408 17.956C16.9313 18.3466 17.5645 18.3466 17.955 17.956C18.3455 17.5655 18.3455 16.9323 17.955 16.5418L13.4129 11.9997L17.955 7.4576C18.3455 7.06707 18.3455 6.43391 17.955 6.04338C17.5645 5.65286 16.9313 5.65286 16.5408 6.04338L11.9987 10.5855L7.45711 6.0439C7.06658 5.65338 6.43342 5.65338 6.04289 6.0439C5.65237 6.43442 5.65237 7.06759 6.04289 7.45811L10.5845 11.9997L6.04289 16.5413Z" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <form id="create-course-form" onSubmit={handleSubmit}>
+          <div className="bg-gray-50 dark:bg-gray-950 px-6 py-6">
+            <Label>Nombre del curso</Label>
+            <Input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ej. Máster en Barbería"
+              required
+            />
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-end gap-2 px-6 py-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-white/[0.06]">
+            <Button size="sm" variant="outline" type="button" onClick={handleClose} disabled={loading}>
+              Cancelar
             </Button>
-            <Button size="sm" variant="primary" disabled={loading}>
-              {loading ? "Cargando..." : "Crear"}
+            <Button size="sm" variant="primary" type="submit" form="create-course-form" disabled={loading}>
+              {loading ? "Guardando..." : "Crear curso"}
             </Button>
           </div>
         </form>
       </Modal>
-    </div>
+    </>
   );
 }
-
-export default CreateCourseModal;
