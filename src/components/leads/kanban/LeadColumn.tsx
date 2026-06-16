@@ -8,7 +8,6 @@ interface LeadColumnProps {
   status: LeadStatus;
   leads: Lead[];
   onDropLead: (lead: Lead, newStatus: LeadStatus) => void;
-  onUpdate: (updatedLead: Lead) => void;
 }
 
 export default function LeadColumn({
@@ -16,7 +15,6 @@ export default function LeadColumn({
   status,
   leads,
   onDropLead,
-  onUpdate,
 }: LeadColumnProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -52,7 +50,7 @@ export default function LeadColumn({
         </span>
       </h3>
       {leads.map((lead) => (
-        <LeadCard key={lead.id} lead={lead} onUpdate={onUpdate} />
+        <LeadCard key={lead.id} lead={lead} />
       ))}
     </div>
   );

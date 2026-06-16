@@ -10,12 +10,13 @@ import SpinnerFour from "../../ui/spinner/SpinnerFour";
 import axiosInstance from "../../../axios/axiosConfig";
 import { useNotification } from "../../../context/NotificationContext";
 import Lead from "../../../types/frontend/lead";
+import Alumn from "../../../types/frontend/alumn-temp";
 
 interface Props {
   lead: Lead;
   isOpen: boolean;
   onClose: () => void;
-  onConverted: (updatedLead: Lead) => void;
+  onConverted: (updatedLead: Lead, alumn: Alumn) => void;
 }
 
 const documentTypeOptions = [
@@ -103,7 +104,7 @@ export default function ConvertLeadModal({
         `/leads/${lead.id}/convert`,
         convertData
       );
-      onConverted(data.lead);
+      onConverted(data.lead, data.alumn);
       showNotification(
         "success",
         "Lead",
@@ -136,7 +137,7 @@ export default function ConvertLeadModal({
     >
       <form onSubmit={handleConvert}>
         <h4 className="mb-6 text-lg font-medium text-gray-800 dark:text-white/90">
-          Convertir a Alumno
+          Hacer matrícula
         </h4>
 
         {converting ? (
@@ -308,7 +309,7 @@ export default function ConvertLeadModal({
             Cancelar
           </Button>
           <Button size="sm" variant="primary" disabled={converting}>
-            {converting ? "Guardando..." : "Convertir"}
+            {converting ? "Guardando..." : "Matricular y continuar"}
           </Button>
         </div>
       </form>

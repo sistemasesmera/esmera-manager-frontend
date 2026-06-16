@@ -59,8 +59,10 @@ import Contracts from "./pages/Contracts/Contracts";
 import DashboardComerciales from "./pages/Dashboard/Dashboard";
 import Leads from "./pages/Leads/Leads";
 import LeadsPipeline from "./pages/Leads/LeadsPipeline";
+import LeadDetail from "./pages/Leads/LeadDetail";
 import Crm from "./pages/Dashboard/Crm";
 import ManualUsuario from "./pages/Manual/ManualUsuario";
+import ActivityLogPage from "./pages/Activity/ActivityLog";
 
 export default function App() {
   return (
@@ -88,6 +90,7 @@ export default function App() {
                     path="/informes-de-contratos"
                     element={<ContractsPage />}
                   />
+                  <Route path="/activity" element={<ActivityLogPage />} />
                 </Route>
 
                 {/* Contracts Page*/}
@@ -101,6 +104,7 @@ export default function App() {
                 {/* Leads Page*/}
                 <Route path="/leads" element={<Leads />} />
                 <Route path="/leads/pipeline" element={<LeadsPipeline />} />
+                <Route path="/leads/:id" element={<LeadDetail />} />
                 <Route path="/crm" element={<Crm />} />
 
                 {/* Courses Page*/}

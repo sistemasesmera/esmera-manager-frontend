@@ -10,7 +10,7 @@ import AvatarText from "../ui/avatar/AvatarText";
 import axiosInstance from "../../axios/axiosConfig";
 import SpinnerThree from "../ui/spinner/SpinnerThree";
 import Lead, { LEAD_SOURCE_LABELS } from "../../types/frontend/lead";
-import { LeadStatusBadge } from "../leads/Modals/LeadDetailModal";
+import { LeadStatusBadge } from "../leads/LeadStatusBadge";
 
 export default function CrmRecentOrderTable() {
   const [leads, setLeads] = useState<Lead[]>([]);

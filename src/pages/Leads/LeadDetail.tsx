@@ -1,29 +1,26 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { RootState } from "../../../store";
-import { Modal } from "../../ui/modal";
-import Button from "../../ui/button/Button";
-import Label from "../../form/Label";
-import Input from "../../form/input/InputField";
-import TextArea from "../../form/input/TextArea";
-import Select from "../../form/Select";
-import { useModal } from "../../../hooks/useModal";
-import axiosInstance from "../../../axios/axiosConfig";
-import { useNotification } from "../../../context/NotificationContext";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { RootState } from "../../store";
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import PageMeta from "../../components/common/PageMeta";
+import Button from "../../components/ui/button/Button";
+import Label from "../../components/form/Label";
+import Input from "../../components/form/input/InputField";
+import TextArea from "../../components/form/input/TextArea";
+import Select from "../../components/form/Select";
+import SpinnerThree from "../../components/ui/spinner/SpinnerThree";
+import axiosInstance from "../../axios/axiosConfig";
+import { useNotification } from "../../context/NotificationContext";
 import Lead, {
   LeadStatus,
   LeadDiscardReason,
   LEAD_STATUS_LABELS,
   LEAD_SOURCE_LABELS,
   LEAD_DISCARD_REASON_LABELS,
-} from "../../../types/frontend/lead";
-import ConvertLeadModal from "./ConvertLeadModal";
-
-interface Props {
-  lead: Lead;
-  onUpdate: (updatedLead: Lead) => void;
-}
+} from "../../types/frontend/lead";
+import { LeadStatusBadge } from "../../components/leads/LeadStatusBadge";
+import ConvertLeadModal from "../../components/leads/Modals/ConvertLeadModal";
 
 const statusOptions = Object.values(LeadStatus).map((value) => ({
   value,
@@ -37,47 +34,26 @@ const discardReasonOptions = Object.values(LeadDiscardReason).map(
   })
 );
 
-export const STATUS_BADGE_CLASSES: Record<LeadStatus, string> = {
-  [LeadStatus.NUEVO]:
-    "bg-blue-100 text-blue-600 dark:bg-blue-700 dark:text-white",
-  [LeadStatus.CONTACTADO]:
-    "bg-yellow-100 text-yellow-600 dark:bg-yellow-700 dark:text-white",
-  [LeadStatus.EN_SEGUIMIENTO]:
-    "bg-purple-100 text-purple-600 dark:bg-purple-700 dark:text-white",
-  [LeadStatus.MATRICULADO]:
-    "bg-green-100 text-green-600 dark:bg-green-700 dark:text-white",
-  [LeadStatus.DESCARTADO]:
-    "bg-red-100 text-red-600 dark:bg-red-700 dark:text-white",
-};
-
-export function LeadStatusBadge({ status }: { status: LeadStatus }) {
-  return (
-    <span
-      className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${STATUS_BADGE_CLASSES[status]}`}
-    >
-      {LEAD_STATUS_LABELS[status]}
-    </span>
-  );
-}
-
-export default function LeadDetailModal({ lead, onUpdate }: Props) {
-  const { isOpen, openModal, closeModal } = useModal();
+export default function LeadDetail() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const { showNotification } = useNotification();
-  const navigate = useNavigate();
 
   const canAssign = user?.role === "ADMIN" || user?.role === "COMMERCIAL_PLUS";
 
-  const [notes, setNotes] = useState(lead.notes ?? "");
-  const [status, setStatus] = useState<LeadStatus>(lead.status);
-  const [discardReason, setDiscardReason] = useState<LeadDiscardReason | "">(
-    lead.discardReason ?? ""
-  );
-  const [discardReasonOther, setDiscardReasonOther] = useState(
-    lead.discardReasonOther ?? ""
-  );
+  const [lead, setLead] = useState<Lead | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [assignedToId, setAssignedToId] = useState(lead.assignedTo?.id ?? "");
+  const [notes, setNotes] = useState("");
+  const [status, setStatus] = useState<LeadStatus>(LeadStatus.NUEVO);
+  const [discardReason, setDiscardReason] = useState<LeadDiscardReason | "">(
+    ""
+  );
+  const [discardReasonOther, setDiscardReasonOther] = useState("");
+
+  const [assignedToId, setAssignedToId] = useState("");
   const [commercials, setCommercials] = useState<
     { id: string; firstName: string; lastName: string }[]
   >([]);
@@ -89,7 +65,29 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
   const [showConvertForm, setShowConvertForm] = useState(false);
 
   useEffect(() => {
-    if (!isOpen || !canAssign) return;
+    const fetchLead = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axiosInstance.get(`/leads/${id}`);
+        setLead(data);
+        setNotes(data.notes ?? "");
+        setStatus(data.status);
+        setDiscardReason(data.discardReason ?? "");
+        setDiscardReasonOther(data.discardReasonOther ?? "");
+        setAssignedToId(data.assignedTo?.id ?? "");
+        setError(null);
+      } catch {
+        setError("Ha ocurrido un error, por favor intente nuevamente.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLead();
+  }, [id]);
+
+  useEffect(() => {
+    if (!canAssign) return;
 
     const fetchCommercials = async () => {
       try {
@@ -101,25 +99,16 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
     };
 
     fetchCommercials();
-  }, [isOpen, canAssign]);
-
-  const openModalWithReset = () => {
-    setNotes(lead.notes ?? "");
-    setStatus(lead.status);
-    setDiscardReason(lead.discardReason ?? "");
-    setDiscardReasonOther(lead.discardReasonOther ?? "");
-    setAssignedToId(lead.assignedTo?.id ?? "");
-    setShowConvertForm(false);
-    openModal();
-  };
+  }, [canAssign]);
 
   const handleSaveNotes = async () => {
+    if (!lead) return;
     try {
       setSavingNotes(true);
       const { data } = await axiosInstance.patch(`/leads/${lead.id}`, {
         notes,
       });
-      onUpdate(data);
+      setLead(data);
       showNotification("success", "Lead", "Notas actualizadas correctamente");
     } catch (error: any) {
       console.error(
@@ -133,6 +122,7 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
   };
 
   const handleSaveStatus = async () => {
+    if (!lead) return;
     if (status === LeadStatus.DESCARTADO && !discardReason) {
       showNotification(
         "error",
@@ -153,7 +143,7 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
         `/leads/${lead.id}/status`,
         payload
       );
-      onUpdate(data);
+      setLead(data);
       showNotification("success", "Lead", "Estado actualizado correctamente");
     } catch (error: any) {
       console.error(
@@ -171,19 +161,15 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
   };
 
   const handleAssign = async () => {
-    if (!assignedToId) return;
+    if (!lead || !assignedToId) return;
 
     try {
       setSavingAssign(true);
       const { data } = await axiosInstance.patch(`/leads/${lead.id}/assign`, {
         assignedToId,
       });
-      onUpdate(data);
-      showNotification(
-        "success",
-        "Lead",
-        "Lead asignado correctamente"
-      );
+      setLead(data);
+      showNotification("success", "Lead", "Lead asignado correctamente");
     } catch (error: any) {
       console.error(
         "Error al asignar el lead:",
@@ -196,31 +182,51 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
   };
 
   const handleCreateContract = () => {
-    if (!lead.convertedAlumn) return;
-    closeModal();
+    if (!lead?.convertedAlumn) return;
     navigate("/contract-create", { state: { alumn: lead.convertedAlumn } });
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <div className="flex flex-col items-center">
+          <SpinnerThree />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Cargando ficha del lead...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !lead) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <p className="text-red-600 dark:text-red-400 font-medium">
+          {error || "No se ha encontrado el lead."}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Button
-        size="sm"
-        onClick={openModalWithReset}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
-             bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
-             hover:bg-gray-100 dark:hover:bg-gray-700
-             transition-colors duration-200 shadow-sm"
-      >
-        <span className="font-medium text-gray-600 dark:text-gray-300">
-          Ver / Gestionar
-        </span>
-      </Button>
+      <PageMeta
+        title={`${lead.name} - Ficha de Lead | Esmera School`}
+        description="Ficha de detalle del lead."
+      />
+      <PageBreadcrumb pageTitle={lead.name} />
 
-      <Modal
-        isOpen={isOpen}
-        onClose={closeModal}
-        className="max-w-[95%] lg:max-w-[700px] p-5 lg:p-8 overflow-auto"
-      >
+      <div className="mb-4">
+        <Link
+          to="/leads"
+          className="text-sm text-brand-500 hover:underline dark:text-brand-400"
+        >
+          ← Volver al listado
+        </Link>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03] lg:p-8">
         <div className="flex items-center justify-between gap-3 mb-4">
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
             {lead.name}
@@ -304,7 +310,12 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
             rows={3}
           />
           <div className="flex justify-end mt-2">
-            <Button size="sm" variant="outline" onClick={handleSaveNotes} disabled={savingNotes}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleSaveNotes}
+              disabled={savingNotes}
+            >
               {savingNotes ? "Guardando..." : "Guardar notas"}
             </Button>
           </div>
@@ -322,7 +333,12 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
                 className="dark:bg-dark-900 border border-gray-300 focus:border-brand-300 focus:ring-brand-500/20"
               />
             </div>
-            <Button size="sm" variant="primary" onClick={handleSaveStatus} disabled={savingStatus}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={handleSaveStatus}
+              disabled={savingStatus}
+            >
               {savingStatus ? "Guardando..." : "Guardar estado"}
             </Button>
           </div>
@@ -406,25 +422,20 @@ export default function LeadDetailModal({ lead, onUpdate }: Props) {
               variant="primary"
               onClick={() => setShowConvertForm(true)}
             >
-              Convertir a Alumno
+              Hacer matrícula
             </Button>
           )}
         </div>
-
-        <div className="flex items-center justify-end w-full gap-3 mt-6">
-          <Button size="sm" variant="outline" onClick={closeModal}>
-            Cerrar
-          </Button>
-        </div>
-      </Modal>
+      </div>
 
       <ConvertLeadModal
         lead={lead}
         isOpen={showConvertForm}
         onClose={() => setShowConvertForm(false)}
-        onConverted={(updated) => {
-          onUpdate(updated);
+        onConverted={(updatedLead, alumn) => {
+          setLead(updatedLead);
           setShowConvertForm(false);
+          navigate("/contract-create", { state: { alumn } });
         }}
       />
     </div>

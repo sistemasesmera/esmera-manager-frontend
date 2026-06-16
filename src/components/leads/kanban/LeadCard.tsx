@@ -1,14 +1,15 @@
 import { useRef } from "react";
 import { useDrag } from "react-dnd";
+import { useNavigate } from "react-router-dom";
 import Lead, { LEAD_SOURCE_LABELS } from "../../../types/frontend/lead";
-import LeadDetailModal from "../Modals/LeadDetailModal";
+import Button from "../../ui/button/Button";
 
 interface LeadCardProps {
   lead: Lead;
-  onUpdate: (updatedLead: Lead) => void;
 }
 
-export default function LeadCard({ lead, onUpdate }: LeadCardProps) {
+export default function LeadCard({ lead }: LeadCardProps) {
+  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag({
@@ -61,7 +62,18 @@ export default function LeadCard({ lead, onUpdate }: LeadCardProps) {
       )}
 
       <div className="mt-3">
-        <LeadDetailModal lead={lead} onUpdate={onUpdate} />
+        <Button
+          size="sm"
+          onClick={() => navigate(`/leads/${lead.id}`)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
+               bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
+               hover:bg-gray-100 dark:hover:bg-gray-700
+               transition-colors duration-200 shadow-sm"
+        >
+          <span className="font-medium text-gray-600 dark:text-gray-300">
+            Ver ficha
+          </span>
+        </Button>
       </div>
     </div>
   );

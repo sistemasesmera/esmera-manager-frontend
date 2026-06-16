@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { RootState } from "../../../store";
 import {
   Table,
@@ -18,7 +19,7 @@ import Lead, {
   LEAD_SOURCE_LABELS,
 } from "../../../types/frontend/lead";
 import CreateLeadModal from "../Modals/CreateLeadModal";
-import LeadDetailModal, { LeadStatusBadge } from "../Modals/LeadDetailModal";
+import { LeadStatusBadge } from "../LeadStatusBadge";
 
 const statusFilterOptions = Object.values(LeadStatus).map((value) => ({
   value,
@@ -26,6 +27,7 @@ const statusFilterOptions = Object.values(LeadStatus).map((value) => ({
 }));
 
 export default function TableLeads() {
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const canFilterByBranchOrCommercial =
     user?.role === "ADMIN" || user?.role === "COMMERCIAL_PLUS";
@@ -319,16 +321,18 @@ export default function TableLeads() {
                           : "Sin asignar"}
                       </TableCell>
                       <TableCell className="px-4 py-4">
-                        <LeadDetailModal
-                          lead={lead}
-                          onUpdate={(updatedLead) => {
-                            setLeads((prev) =>
-                              prev.map((l) =>
-                                l.id === updatedLead.id ? updatedLead : l
-                              )
-                            );
-                          }}
-                        />
+                        <Button
+                          size="sm"
+                          onClick={() => navigate(`/leads/${lead.id}`)}
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
+                               bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
+                               hover:bg-gray-100 dark:hover:bg-gray-700
+                               transition-colors duration-200 shadow-sm"
+                        >
+                          <span className="font-medium text-gray-600 dark:text-gray-300">
+                            Ver ficha
+                          </span>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

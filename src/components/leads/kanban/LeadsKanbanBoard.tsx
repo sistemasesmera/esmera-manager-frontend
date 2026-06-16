@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { RootState } from "../../../store";
@@ -25,6 +26,7 @@ const PIPELINE_STATUSES = [
 ];
 
 export default function LeadsKanbanBoard() {
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const { showNotification } = useNotification();
   const canFilterByBranchOrCommercial =
@@ -214,7 +216,6 @@ export default function LeadsKanbanBoard() {
               status={status}
               leads={leads.filter((lead) => lead.status === status)}
               onDropLead={handleDropLead}
-              onUpdate={updateLead}
             />
           ))}
         </div>
@@ -231,9 +232,10 @@ export default function LeadsKanbanBoard() {
           lead={convertingLead}
           isOpen={!!convertingLead}
           onClose={() => setConvertingLead(null)}
-          onConverted={(updated) => {
+          onConverted={(updated, alumn) => {
             updateLead(updated);
             setConvertingLead(null);
+            navigate("/contract-create", { state: { alumn } });
           }}
         />
       )}
