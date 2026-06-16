@@ -50,23 +50,15 @@ interface DashboardData {
 
 const fmt = (n: number) => new Intl.NumberFormat("es-ES").format(n);
 
-const COLS = ["Comercial", "Vendido (€)", "Objetivo (€)", "Restante (€)", "Obj. contratos", "Rest. contratos"];
-
 function BranchTable({ branchName, metrics, fmt: f }: {
   branchName: string;
   metrics: ComercialMetric[];
   fmt: (n: number) => string;
 }) {
   const totalVendido = metrics.reduce((s, c) => s + c.amountTotal, 0);
-  const totalObjetivo = metrics.reduce((s, c) => s + c.commonGoalPersonalAmount, 0);
-  const totalRestante = metrics.reduce((s, c) => s + c.commonGoalRemainingAmount, 0);
-  const totalObjContratos = metrics.reduce((s, c) => s + c.commonGoalPersonalContracts, 0);
-  const totalRestContratos = metrics.reduce((s, c) => s + c.commonGoalRemainingContracts, 0);
-  const globalPct = totalObjetivo > 0 ? Math.min(100, Math.round((totalVendido / totalObjetivo) * 100)) : 0;
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
-      {/* Cabecera de sede */}
       <div className="flex items-center justify-between px-5 pt-5 pb-4 md:px-6">
         <div className="flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4 text-brand-500">
@@ -74,85 +66,41 @@ function BranchTable({ branchName, metrics, fmt: f }: {
           </svg>
           <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">{branchName}</h3>
         </div>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-500 dark:text-gray-400">
-            Vendido:{" "}
-            <span className="font-semibold text-emerald-600 dark:text-emerald-400">{f(totalVendido)} €</span>
-          </span>
-          <span className="text-gray-500 dark:text-gray-400">
-            Objetivo:{" "}
-            <span className="font-semibold text-gray-700 dark:text-white/80">{f(totalObjetivo)} €</span>
-          </span>
-          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400">
-            {globalPct}%
-          </span>
-        </div>
-      </div>
-
-      {/* Barra de progreso de sede */}
-      <div className="px-5 pb-4 md:px-6">
-        <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-white/[0.06]">
-          <div
-            className="h-full rounded-full bg-brand-500 transition-all duration-500"
-            style={{ width: `${globalPct}%` }}
-          />
-        </div>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          Total:{" "}
+          <span className="font-bold text-emerald-600 dark:text-emerald-400">{f(totalVendido)} €</span>
+        </span>
       </div>
 
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse">
           <thead>
             <tr className="border-y border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-white/[0.02]">
-              {COLS.map((h, i) => (
-                <th
-                  key={i}
-                  className={`py-3 px-4 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 ${i === 0 ? "text-left" : "text-center"}`}
-                >
-                  {h}
-                </th>
-              ))}
+              <th className="py-3 px-4 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 text-left">Comercial</th>
+              <th className="py-3 px-4 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 text-center">Vendido (€)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {metrics.map((c, idx) => {
-              const pct = c.commonGoalPersonalAmount > 0
-                ? Math.min(100, Math.round((c.amountTotal / c.commonGoalPersonalAmount) * 100))
-                : 0;
-              return (
-                <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
-                  <td className="py-3 px-4 text-sm font-medium text-gray-800 dark:text-white/90">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold shrink-0">
-                        {c.nameComercial.charAt(0).toUpperCase()}
-                      </div>
-                      {c.nameComercial}
+            {metrics.map((c, idx) => (
+              <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                <td className="py-3 px-4 text-sm font-medium text-gray-800 dark:text-white/90">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold shrink-0">
+                      {c.nameComercial.charAt(0).toUpperCase()}
                     </div>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{f(c.amountTotal)}</span>
-                      <div className="w-20 h-1.5 rounded-full bg-gray-100 dark:bg-white/[0.06]">
-                        <div className="h-full rounded-full bg-emerald-500" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="text-[10px] text-gray-400">{pct}%</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-center text-sm text-gray-600 dark:text-gray-300">{f(c.commonGoalPersonalAmount)}</td>
-                  <td className="py-3 px-4 text-center text-sm font-medium text-red-600 dark:text-red-400">{f(c.commonGoalRemainingAmount)}</td>
-                  <td className="py-3 px-4 text-center text-sm text-gray-600 dark:text-gray-300">{c.commonGoalPersonalContracts}</td>
-                  <td className="py-3 px-4 text-center text-sm font-medium text-red-600 dark:text-red-400">{c.commonGoalRemainingContracts}</td>
-                </tr>
-              );
-            })}
+                    {c.nameComercial}
+                  </div>
+                </td>
+                <td className="py-3 px-4 text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                  {f(c.amountTotal)}
+                </td>
+              </tr>
+            ))}
           </tbody>
           <tfoot>
             <tr className="border-t border-gray-200 dark:border-white/[0.08] bg-gray-50 dark:bg-white/[0.02]">
               <td className="py-3 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total sede</td>
               <td className="py-3 px-4 text-center text-sm font-bold text-emerald-600 dark:text-emerald-400">{f(totalVendido)}</td>
-              <td className="py-3 px-4 text-center text-sm font-bold text-gray-700 dark:text-white/80">{f(totalObjetivo)}</td>
-              <td className="py-3 px-4 text-center text-sm font-bold text-red-600 dark:text-red-400">{f(totalRestante)}</td>
-              <td className="py-3 px-4 text-center text-sm font-bold text-gray-700 dark:text-white/80">{totalObjContratos}</td>
-              <td className="py-3 px-4 text-center text-sm font-bold text-red-600 dark:text-red-400">{totalRestContratos}</td>
             </tr>
           </tfoot>
         </table>
@@ -178,44 +126,10 @@ function SalesByBranch({ dashData, fmt: f }: { dashData: DashboardData; fmt: (n:
         <BranchTable key={branch} branchName={branch} metrics={byBranch[branch]} fmt={f} />
       ))}
 
-      {/* Resumen global */}
-      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] px-5 py-4 md:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Resumen global</h3>
-          <div className="flex flex-wrap items-center gap-6 text-sm">
-            <div className="text-center">
-              <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">Total vendido</p>
-              <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{f(totalGlobal)} €</p>
-            </div>
-            <div className="w-px h-8 bg-gray-200 dark:bg-white/10" />
-            <div className="text-center">
-              <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">Objetivo total</p>
-              <p className="text-lg font-bold text-gray-700 dark:text-white/80">{f(dashData.commonGoalAmount)} €</p>
-            </div>
-            <div className="w-px h-8 bg-gray-200 dark:bg-white/10" />
-            <div className="text-center">
-              <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">Restante</p>
-              <p className="text-lg font-bold text-red-600 dark:text-red-400">{f(dashData.commonGoalRemainingAmountTotal)} €</p>
-            </div>
-            <div className="w-px h-8 bg-gray-200 dark:bg-white/10" />
-            <div className="text-center">
-              <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-0.5">% completado</p>
-              <p className="text-lg font-bold text-brand-600 dark:text-brand-400">
-                {dashData.commonGoalAmount > 0
-                  ? Math.min(100, Math.round((totalGlobal / dashData.commonGoalAmount) * 100))
-                  : 0}%
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 w-full h-2.5 rounded-full bg-gray-100 dark:bg-white/[0.06]">
-          <div
-            className="h-full rounded-full bg-brand-500 transition-all duration-500"
-            style={{
-              width: `${dashData.commonGoalAmount > 0 ? Math.min(100, Math.round((totalGlobal / dashData.commonGoalAmount) * 100)) : 0}%`
-            }}
-          />
-        </div>
+      {/* Total global */}
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] px-5 py-4 md:px-6 flex items-center justify-between">
+        <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">Total global</h3>
+        <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{f(totalGlobal)} €</p>
       </div>
     </div>
   );
