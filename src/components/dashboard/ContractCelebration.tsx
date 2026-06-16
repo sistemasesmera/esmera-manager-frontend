@@ -74,7 +74,7 @@ export default function ContractCelebration({ event, onDismiss }: Props) {
 
   return (
     <div
-      className={`fixed top-6 left-1/2 z-[9999] -translate-x-1/2 transition-all duration-350 ease-out ${
+      className={`fixed top-20 left-1/2 z-[9999] -translate-x-1/2 transition-all duration-350 ease-out ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3 pointer-events-none"
       }`}
     >
