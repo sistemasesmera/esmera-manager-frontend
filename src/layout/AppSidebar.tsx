@@ -6,12 +6,10 @@ import {
   GridIcon,
   HorizontaLDots,
   PageIcon,
-  UserCircleIcon,
   GroupIcon,
   FolderIcon,
   FileIcon,
   PieChartIcon,
-  DocsIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { RootState } from "../store";
@@ -64,17 +62,6 @@ const navItems: NavItem[] = [
     path: "/courses",
   },
 
-  {
-    icon: <UserCircleIcon />,
-    name: "Perfil",
-    path: "/profile",
-  },
-
-  {
-    icon: <DocsIcon />,
-    name: "Manual de Usuario",
-    path: "/manual",
-  },
 ];
 
 const administrationItems: NavItem[] = [
