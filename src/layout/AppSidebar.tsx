@@ -19,7 +19,7 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean; legacy?: boolean }[];
+  subItems?: { name: string; path: string; pro?: boolean; new?: boolean; legacy?: boolean; admin?: boolean }[];
 };
 
 const navItems: NavItem[] = [
@@ -32,6 +32,7 @@ const navItems: NavItem[] = [
     name: "Contratos",
     icon: <PageIcon />,
     subItems: [
+      { name: "Contratos", path: "/contracts", admin: true },
       { name: "Mis Contratos", path: "/my-contracts" },
       { name: "Crear", path: "/contract-create", legacy: true },
     ],
@@ -62,11 +63,6 @@ const administrationItems: NavItem[] = [
     icon: <GroupIcon />,
     name: "Comerciales",
     path: "/commercials",
-  },
-  {
-    icon: <PageIcon />,
-    name: "Contratos",
-    path: "/contracts",
   },
   {
     name: "Informes",
@@ -233,7 +229,9 @@ const AppSidebar: React.FC = () => {
               }}
             >
               <ul className="mt-2 space-y-1 ml-9">
-                {nav.subItems.map((subItem) => (
+                {nav.subItems
+                  .filter((subItem) => !subItem.admin || user?.role === "ADMIN")
+                  .map((subItem) => (
                   <li key={subItem.name}>
                     <Link
                       to={subItem.path}
@@ -245,8 +243,13 @@ const AppSidebar: React.FC = () => {
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
+                        {subItem.admin && (
+                          <span className="rounded-full bg-brand-50 dark:bg-brand-900/30 px-1.5 py-0.5 text-[10px] font-medium text-brand-600 dark:text-brand-400">
+                            admin
+                          </span>
+                        )}
                         {subItem.legacy && (
-                          <span className="ml-auto rounded-full bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                          <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
                             antiguo
                           </span>
                         )}
