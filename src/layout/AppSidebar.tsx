@@ -92,10 +92,12 @@ const administrationItems: NavItem[] = [
   {
     name: "Informes",
     icon: <FileIcon />,
-    subItems: [
-      { name: "Contratos", path: "/informes-de-contratos" },
-      { name: "Actividad", path: "/activity" },
-    ],
+    subItems: [{ name: "Contratos", path: "/informes-de-contratos" }],
+  },
+  {
+    icon: <FileIcon />,
+    name: "Actividad",
+    path: "/activity",
   },
 ];
 
