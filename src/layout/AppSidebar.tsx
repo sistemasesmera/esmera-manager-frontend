@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
-// Assume these icons are imported from an icon library
 import {
   ChevronDownIcon,
   GridIcon,
@@ -102,7 +101,7 @@ const administrationItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleSidebar } = useSidebar();
   const location = useLocation();
 
   const { user } = useSelector((state: RootState) => state.auth);
@@ -349,10 +348,10 @@ const AppSidebar: React.FC = () => {
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      <div className="flex-1 flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            {/* 
+            {/*
                Menu para todos los usuarios
              */}
             <div>
@@ -372,7 +371,7 @@ const AppSidebar: React.FC = () => {
               {renderMenuItems(navItems, "main")}
             </div>
 
-            {/* 
+            {/*
             Menu solo para administradores y comerciales plus
             */}
             {(user?.role === "ADMIN" || user?.role === "COMMERCIAL_PLUS") && (
@@ -395,6 +394,34 @@ const AppSidebar: React.FC = () => {
             )}
           </div>
         </nav>
+      </div>
+
+      {/* ── Botón colapsar / expandir (solo desktop) ── */}
+      <div className="hidden lg:flex border-t border-gray-100 dark:border-gray-800 py-3">
+        <button
+          onClick={toggleSidebar}
+          className={`flex items-center gap-2 w-full px-2 py-2 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150 ${
+            !isExpanded && !isHovered ? "justify-center" : "justify-start"
+          }`}
+          title={isExpanded ? "Colapsar menú" : "Expandir menú"}
+        >
+          {isExpanded || isHovered ? (
+            <>
+              {/* chevron izquierda doble */}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="11 17 6 12 11 7" />
+                <polyline points="18 17 13 12 18 7" />
+              </svg>
+              <span className="text-xs font-medium">Colapsar</span>
+            </>
+          ) : (
+            /* chevron derecha doble */
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="13 17 18 12 13 7" />
+              <polyline points="6 17 11 12 6 7" />
+            </svg>
+          )}
+        </button>
       </div>
     </aside>
   );
