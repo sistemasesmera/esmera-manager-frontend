@@ -26,7 +26,6 @@
     "apexcharts": "^4.1.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
-    "canvas-confetti": "^1.9.4",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "flatpickr": "^4.6.13",
@@ -44,14 +43,12 @@
     "react-router": "^7.1.5",
     "react-router-dom": "^7.2.0",
     "simplebar-react": "^3.3.0",
-    "socket.io-client": "^4.8.3",
     "swiper": "^11.2.3",
     "tailwind-merge": "^3.0.1",
     "uninstall": "^0.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
-    "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@types/react-flatpickr": "^3.8.11",

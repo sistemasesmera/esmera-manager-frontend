@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageMeta from "../../components/common/PageMeta";
 import axiosInstance from "../../axios/axiosConfig";
@@ -10,8 +10,6 @@ import {
   DollarLineIcon,
   ShootingStarIcon,
 } from "../../icons";
-import { useContractEvents, ContractSignedEvent } from "../../hooks/useContractEvents";
-import ContractCelebration from "../../components/dashboard/ContractCelebration";
 
 interface HomeStats {
   totalAlumns: number;
@@ -170,29 +168,22 @@ export default function Ecommerce() {
   const [contracts, setContracts] = useState<RecentContract[]>([]);
   const [dashData, setDashData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [celebration, setCelebration] = useState<ContractSignedEvent | null>(null);
 
-  const fetchAll = useCallback(async (showSpinner = true) => {
-    if (showSpinner) setLoading(true);
-    const [statsRes, contractsRes, dashRes] = await Promise.allSettled([
-      axiosInstance.get("/dashboard/home-stats"),
-      axiosInstance.get("/contracts", { params: { page: 1, limit: 5 } }),
-      axiosInstance.get("/dashboard"),
-    ]);
-    if (statsRes.status === "fulfilled") setStats(statsRes.value.data);
-    if (contractsRes.status === "fulfilled") setContracts(contractsRes.value.data.data ?? []);
-    if (dashRes.status === "fulfilled") setDashData(dashRes.value.data);
-    if (showSpinner) setLoading(false);
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true);
+      const [statsRes, contractsRes, dashRes] = await Promise.allSettled([
+        axiosInstance.get("/dashboard/home-stats"),
+        axiosInstance.get("/contracts", { params: { page: 1, limit: 5 } }),
+        axiosInstance.get("/dashboard"),
+      ]);
+      if (statsRes.status === "fulfilled") setStats(statsRes.value.data);
+      if (contractsRes.status === "fulfilled") setContracts(contractsRes.value.data.data ?? []);
+      if (dashRes.status === "fulfilled") setDashData(dashRes.value.data);
+      setLoading(false);
+    };
+    fetchAll();
   }, []);
-
-  useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  // Escuchar contratos firmados en tiempo real
-  useContractEvents((event) => {
-    setCelebration(event);
-    // Refrescar stats silenciosamente al detectar un nuevo contrato
-    fetchAll(false);
-  });
 
   return (
     <>
@@ -201,26 +192,6 @@ export default function Ecommerce() {
         description="Panel de inicio de Esmera School"
       />
 
-      <ContractCelebration
-        event={celebration}
-        onDismiss={() => setCelebration(null)}
-      />
-
-      {/* Botón de prueba — quitar cuando ya no sea necesario */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={() =>
-            setCelebration({
-              alumnName: "Mariam Zapata",
-              amount: 20000,
-              commercialName: "Alejandro Morales",
-            })
-          }
-          className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-emerald-600 active:scale-95 transition-all"
-        >
-          OK
-        </button>
-      </div>
 
       {loading && (
         <div className="flex justify-center items-center py-16">
