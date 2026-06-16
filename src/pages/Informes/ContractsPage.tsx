@@ -8,7 +8,6 @@ import {
 } from "../../components/ui/table";
 import Button from "../../components/ui/button/Button";
 import SpinnerThree from "../../components/ui/spinner/SpinnerThree";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import Select from "../../components/form/Select";
 import Flatpickr from "react-flatpickr";
 import Label from "../../components/form/Label";
@@ -188,7 +187,6 @@ export default function ContractsPage() {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Informes" />
       <div className="rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="gap-2 px-5 mb-4 space-y-8">
           <div className="flex w-full justify-between">

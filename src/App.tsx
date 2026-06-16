@@ -54,7 +54,7 @@ import Alumns from "./pages/Alumns/Alumns";
 import Courses from "./pages/Courses/Courses";
 import Commercials from "./pages/Commercials/Commercials";
 import { NotificationProvider } from "./context/NotificationContext";
-import ContractsPage from "./pages/Informes/ContractsPage";
+import InformesPage from "./pages/Informes/InformesPage";
 import Contracts from "./pages/Contracts/Contracts";
 import DashboardComerciales from "./pages/Dashboard/Dashboard";
 import Leads from "./pages/Leads/Leads";
@@ -87,10 +87,7 @@ export default function App() {
                   }
                 >
                   <Route path="/commercials" element={<Commercials />} />
-                  <Route
-                    path="/informes-de-contratos"
-                    element={<ContractsPage />}
-                  />
+                  <Route path="/informes" element={<InformesPage />} />
                   <Route path="/activity" element={<ActivityLogPage />} />
                 </Route>
 
