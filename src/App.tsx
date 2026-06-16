@@ -63,6 +63,7 @@ import LeadDetail from "./pages/Leads/LeadDetail";
 import Crm from "./pages/Dashboard/Crm";
 import ManualUsuario from "./pages/Manual/ManualUsuario";
 import ActivityLogPage from "./pages/Activity/ActivityLog";
+import AlumnDetail from "./pages/Alumns/AlumnDetail";
 
 export default function App() {
   return (
@@ -100,6 +101,7 @@ export default function App() {
 
                 {/* Alumns Page*/}
                 <Route path="/alumns" element={<Alumns />} />
+                <Route path="/alumns/:id" element={<AlumnDetail />} />
 
                 {/* Leads Page*/}
                 <Route path="/leads" element={<Leads />} />
