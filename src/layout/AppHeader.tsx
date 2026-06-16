@@ -5,7 +5,6 @@ import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
-import GlobalSearch from "../components/header/GlobalSearch";
 import { RootState } from "../store";
 import { useSelector } from "react-redux";
 
@@ -122,9 +121,6 @@ const AppHeader: React.FC = () => {
             </svg>
           </button>
 
-          <div className="hidden lg:block">
-            <GlobalSearch />
-          </div>
         </div>
         <div
           className={`${
