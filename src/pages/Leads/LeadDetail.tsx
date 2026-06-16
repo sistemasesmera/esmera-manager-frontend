@@ -10,6 +10,8 @@ import Input from "../../components/form/input/InputField";
 import TextArea from "../../components/form/input/TextArea";
 import Select from "../../components/form/Select";
 import SpinnerThree from "../../components/ui/spinner/SpinnerThree";
+import Flatpickr from "react-flatpickr";
+import { CalenderIcon } from "../../icons";
 import axiosInstance from "../../axios/axiosConfig";
 import { useNotification } from "../../context/NotificationContext";
 import Lead, {
@@ -21,6 +23,30 @@ import Lead, {
 } from "../../types/frontend/lead";
 import { LeadStatusBadge } from "../../components/leads/LeadStatusBadge";
 import ConvertLeadModal from "../../components/leads/Modals/ConvertLeadModal";
+import ActivityLog from "../../types/frontend/activityLog";
+
+const ACTION_LABEL: Record<string, string> = {
+  LEAD_CREADO: "Lead creado",
+  LEAD_ESTADO_CAMBIADO: "Estado cambiado",
+  LEAD_ASIGNADO: "Lead asignado",
+  LEAD_NOTAS_ACTUALIZADAS: "Notas actualizadas",
+  LEAD_CONVERTIDO_A_ALUMNO: "Convertido a alumno",
+};
+
+function timelineDetail(log: ActivityLog): string {
+  const d = log.details;
+  if (!d) return "";
+  switch (log.action) {
+    case "LEAD_ESTADO_CAMBIADO":
+      return `${d.fromStatus} → ${d.toStatus}`;
+    case "LEAD_ASIGNADO":
+      return `Asignado a: ${d.assignedToEmail ?? d.assignedToId}`;
+    case "LEAD_CONVERTIDO_A_ALUMNO":
+      return `Alumno creado`;
+    default:
+      return "";
+  }
+}
 
 const statusOptions = Object.values(LeadStatus).map((value) => ({
   value,
@@ -61,6 +87,11 @@ export default function LeadDetail() {
   const [savingNotes, setSavingNotes] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
   const [savingAssign, setSavingAssign] = useState(false);
+  const [savingNextContact, setSavingNextContact] = useState(false);
+
+  const [nextContactDate, setNextContactDate] = useState("");
+
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
 
   const [showConvertForm, setShowConvertForm] = useState(false);
 
@@ -75,6 +106,9 @@ export default function LeadDetail() {
         setDiscardReason(data.discardReason ?? "");
         setDiscardReasonOther(data.discardReasonOther ?? "");
         setAssignedToId(data.assignedTo?.id ?? "");
+        setNextContactDate(
+          data.nextContactDate ? data.nextContactDate.slice(0, 10) : ""
+        );
         setError(null);
       } catch {
         setError("Ha ocurrido un error, por favor intente nuevamente.");
@@ -100,6 +134,16 @@ export default function LeadDetail() {
 
     fetchCommercials();
   }, [canAssign]);
+
+  useEffect(() => {
+    if (!id) return;
+    axiosInstance
+      .get("/audit-logs", {
+        params: { entityType: "Lead", entityId: id, limit: 20 },
+      })
+      .then(({ data }) => setActivityLogs(data.data ?? []))
+      .catch(() => {});
+  }, [id]);
 
   const handleSaveNotes = async () => {
     if (!lead) return;
@@ -178,6 +222,28 @@ export default function LeadDetail() {
       showNotification("error", "Lead", "Error al asignar el lead");
     } finally {
       setSavingAssign(false);
+    }
+  };
+
+  const handleSaveNextContact = async () => {
+    if (!lead) return;
+    try {
+      setSavingNextContact(true);
+      const { data } = await axiosInstance.patch(`/leads/${lead.id}`, {
+        nextContactDate: nextContactDate || null,
+      });
+      setLead(data);
+      showNotification(
+        "success",
+        "Lead",
+        nextContactDate
+          ? "Próximo contacto guardado"
+          : "Próximo contacto eliminado"
+      );
+    } catch {
+      showNotification("error", "Lead", "Error al guardar el próximo contacto");
+    } finally {
+      setSavingNextContact(false);
     }
   };
 
@@ -401,6 +467,52 @@ export default function LeadDetail() {
           </div>
         )}
 
+        {/* Próximo contacto */}
+        <div className="mb-6 border-t border-gray-200 dark:border-white/[0.05] pt-4">
+          <Label>Próximo contacto</Label>
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+            <div className="relative flex-1">
+              <Flatpickr
+                value={nextContactDate}
+                onChange={(dates: Date[]) =>
+                  setNextContactDate(
+                    dates[0]?.toISOString().split("T")[0] ?? ""
+                  )
+                }
+                options={{ dateFormat: "Y-m-d" }}
+                placeholder="Seleccionar fecha"
+                className="h-11 w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring bg-transparent text-gray-800 border-gray-300 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700"
+              />
+              <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                <CalenderIcon className="size-5" />
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={handleSaveNextContact}
+                disabled={savingNextContact}
+              >
+                {savingNextContact ? "Guardando..." : "Guardar"}
+              </Button>
+              {nextContactDate && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setNextContactDate("");
+                    handleSaveNextContact();
+                  }}
+                  disabled={savingNextContact}
+                >
+                  Quitar
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Conversión a alumno / contrato */}
         <div className="border-t border-gray-200 dark:border-white/[0.05] pt-4">
           {lead.convertedAlumn ? (
@@ -438,6 +550,49 @@ export default function LeadDetail() {
           navigate("/contract-create", { state: { alumn } });
         }}
       />
+
+      {/* Timeline de actividad */}
+      {activityLogs.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03] lg:p-8">
+          <h5 className="text-base font-semibold text-gray-800 dark:text-white mb-4">
+            Historial de actividad
+          </h5>
+          <ol className="relative border-l border-gray-200 dark:border-white/[0.08] space-y-6 ml-3">
+            {activityLogs.map((log) => {
+              const detail = timelineDetail(log);
+              return (
+                <li key={log.id} className="ml-4">
+                  <span className="absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-brand-500 ring-4 ring-white dark:ring-gray-900" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                    <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                      {ACTION_LABEL[log.action] ?? log.action}
+                      {detail && (
+                        <span className="ml-2 font-normal text-gray-500 dark:text-gray-400">
+                          · {detail}
+                        </span>
+                      )}
+                    </p>
+                    <time className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
+                      {new Date(log.createdAt).toLocaleString("es-ES", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </time>
+                  </div>
+                  {log.userEmail && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      {log.userEmail}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }

@@ -61,6 +61,7 @@ export default interface Lead {
   assignedTo?: LeadAssignedTo;
   convertedAlumn?: Alumn;
   notes?: string;
+  nextContactDate?: string | null;
   contactedAt?: string;
   assignedAt?: string;
   createdAt: string;
