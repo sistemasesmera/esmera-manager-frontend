@@ -6,7 +6,6 @@ import Button from "../../components/ui/button/Button";
 import Label from "../../components/form/Label";
 import SpinnerThree from "../../components/ui/spinner/SpinnerThree";
 import axiosInstance from "../../axios/axiosConfig";
-import { useNotification } from "../../context/NotificationContext";
 import Alumn from "../../types/frontend/alumn-temp";
 import ActivityLog from "../../types/frontend/activityLog";
 
@@ -30,7 +29,6 @@ const ACTION_LABEL: Record<string, string> = {
 export default function AlumnDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { showNotification } = useNotification();
 
   const [alumn, setAlumn] = useState<Alumn | null>(null);
   const [contracts, setContracts] = useState<AlumnContract[]>([]);
