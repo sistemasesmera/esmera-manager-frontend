@@ -108,25 +108,8 @@ export default function InformationModal({ alumn, onUpdate }: AlumnModalProps) {
 
   return (
     <div>
-      <Button
-        size="sm"
-        onClick={openModalWithReset}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600
-             bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200
-             hover:bg-gray-100 dark:hover:bg-gray-700
-             transition-colors duration-200 shadow-sm"
-      >
-        <svg
-          className="w-4 h-4 text-gray-500 dark:text-gray-300"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5c-4.142 0-7.5 3.358-7.5 7.5s3.358 7.5 7.5 7.5 7.5-3.358 7.5-7.5-3.358-7.5-7.5-7.5zm0 3a2.25 2.25 0 110 4.5 2.25 2.25 0 010-4.5zm0 9.75a5.25 5.25 0 00-4.331-2.25h8.662A5.25 5.25 0 0012 17.25z" />
-        </svg>
-        <span className="font-medium text-sm">Ver / Editar</span>
+      <Button size="sm" variant="outline" onClick={openModalWithReset}>
+        Ver / Editar
       </Button>
 
       <Modal
