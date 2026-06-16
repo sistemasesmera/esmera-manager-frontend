@@ -86,13 +86,40 @@ export default function ContractModal({ contract }: ContractModalProps) {
       <Modal
         isOpen={isOpen}
         onClose={closeModal}
+        showCloseButton={false}
         className="max-w-[95%] lg:max-w-[860px] p-0 overflow-hidden"
       >
         {/* ── Header ────────────────────────────────────────────── */}
         <div className="bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-5 lg:px-8 lg:py-6">
-          <div className="flex items-start justify-between gap-4">
+          {/* Fila superior: precio + X */}
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-2xl font-bold text-white">
+                {fmtPrice(contract.coursePrice)}
+              </p>
+              {!contract.hasGuarantor && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium text-white">
+                  <svg className="w-3 h-3 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg>
+                  Sin avalista
+                </span>
+              )}
+            </div>
+            <button
+              onClick={closeModal}
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors shrink-0"
+              aria-label="Cerrar"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path fillRule="evenodd" clipRule="evenodd" d="M6.04289 16.5413C5.65237 16.9318 5.65237 17.565 6.04289 17.9555C6.43342 18.346 7.06658 18.346 7.45711 17.9555L11.9987 13.4139L16.5408 17.956C16.9313 18.3466 17.5645 18.3466 17.955 17.956C18.3455 17.5655 18.3455 16.9323 17.955 16.5418L13.4129 11.9997L17.955 7.4576C18.3455 7.06707 18.3455 6.43391 17.955 6.04338C17.5645 5.65286 16.9313 5.65286 16.5408 6.04338L11.9987 10.5855L7.45711 6.0439C7.06658 5.65338 6.43342 5.65338 6.04289 6.0439C5.65237 6.43442 5.65237 7.06759 6.04289 7.45811L10.5845 11.9997L6.04289 16.5413Z" fill="currentColor"/>
+              </svg>
+            </button>
+          </div>
+          {/* Fila inferior: nombre + alumno + fecha */}
+          <div className="flex items-end justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-widest text-brand-200 mb-1">
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand-200 mb-0.5">
                 Contrato
               </p>
               <h4 className="text-lg font-bold text-white truncate">
@@ -103,14 +130,9 @@ export default function ContractModal({ contract }: ContractModalProps) {
                 {contract.branch?.name ? ` · ${contract.branch.name}` : ""}
               </p>
             </div>
-            <div className="shrink-0 text-right">
-              <p className="text-2xl font-bold text-white">
-                {fmtPrice(contract.coursePrice)}
-              </p>
-              <p className="text-xs text-brand-200 mt-0.5">
-                {fmtDate(contract.contractDate)}
-              </p>
-            </div>
+            <p className="text-xs text-brand-200 shrink-0">
+              {fmtDate(contract.contractDate)}
+            </p>
           </div>
         </div>
 
