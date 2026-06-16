@@ -206,6 +206,22 @@ export default function Ecommerce() {
         onDismiss={() => setCelebration(null)}
       />
 
+      {/* Botón de prueba — quitar cuando ya no sea necesario */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() =>
+            setCelebration({
+              alumnName: "Mariam Zapata",
+              amount: 20000,
+              commercialName: "Alejandro Morales",
+            })
+          }
+          className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-emerald-600 active:scale-95 transition-all"
+        >
+          OK
+        </button>
+      </div>
+
       {loading && (
         <div className="flex justify-center items-center py-16">
           <SpinnerThree />
