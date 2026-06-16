@@ -8,8 +8,6 @@ import Input from "../../form/input/InputField";
 import Flatpickr from "react-flatpickr";
 import { CalenderIcon } from "../../../icons";
 import Select from "../../form/Select";
-import SpinnerFour from "../../ui/spinner/SpinnerFour";
-import Tooltip from "../../ui/tooltip/Tooltip";
 import { useModal } from "../../../hooks/useModal";
 import axiosInstance from "../../../axios/axiosConfig";
 import { useNotification } from "../../../context/NotificationContext";
@@ -18,383 +16,198 @@ type Props = {
   onAlumnCreated: (alumnData: any) => void;
 };
 
+const EMPTY = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  birthDate: "",
+  documentType: "",
+  documentNumber: "",
+  address: "",
+  postalCode: "",
+  population: "",
+  province: "",
+  phone: "",
+};
+
+const DOC_OPTIONS = [
+  { value: "DNI", label: "DNI" },
+  { value: "NIE", label: "NIE" },
+  { value: "PASAPORTE", label: "Pasaporte" },
+];
+
+const CloseIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <path fillRule="evenodd" clipRule="evenodd" d="M6.04289 16.5413C5.65237 16.9318 5.65237 17.565 6.04289 17.9555C6.43342 18.346 7.06658 18.346 7.45711 17.9555L11.9987 13.4139L16.5408 17.956C16.9313 18.3466 17.5645 18.3466 17.955 17.956C18.3455 17.5655 18.3455 16.9323 17.955 16.5418L13.4129 11.9997L17.955 7.4576C18.3455 7.06707 18.3455 6.43391 17.955 6.04338C17.5645 5.65286 16.9313 5.65286 16.5408 6.04338L11.9987 10.5855L7.45711 6.0439C7.06658 5.65338 6.43342 5.65338 6.04289 6.0439C5.65237 6.43442 5.65237 7.06759 6.04289 7.45811L10.5845 11.9997L6.04289 16.5413Z" fill="currentColor" />
+  </svg>
+);
+
 function CreateAlumnModal({ onAlumnCreated }: Props) {
   const { isOpen, openModal, closeModal } = useModal();
   const { user } = useSelector((state: RootState) => state.auth);
-
   const { showNotification } = useNotification();
-
   const isCommercial = user?.role === "COMMERCIAL";
 
-  const [formData, setFormData] = useState({
-    lastName: "",
-    firstName: "",
-    documentType: "",
-    documentNumber: "",
-    address: "",
-    postalCode: "",
-    population: "",
-    province: "",
-    phone: "",
-    email: "",
-    birthDate: "",
-  });
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  const [form, setForm] = useState(EMPTY);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  const handleCloseModal = () => {
-    setFormData({
-      lastName: "",
-      firstName: "",
-      documentType: "",
-      documentNumber: "",
-      address: "",
-      postalCode: "",
-      population: "",
-      province: "",
-      phone: "",
-      email: "",
-      birthDate: "",
-    });
+  const handleClose = () => {
+    setForm(EMPTY);
     setErrors({});
     closeModal();
   };
 
-  const options = [
-    { value: "DNI", label: "DNI" },
-    { value: "NIE", label: "NIE" },
-    { value: "PASAPORTE", label: "PASAPORTE" },
-  ];
+  const set = (field: keyof typeof EMPTY) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleSelectChange = (value: string) => {
-    setFormData({ ...formData, documentType: value });
-    validateField("documentType", value);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    validateField(name, value);
-  };
-
-  const handleDateChange = (selectedDates: Date[]) => {
-    setFormData({
-      ...formData,
-      birthDate: selectedDates[0]
-        ? selectedDates[0].toISOString().split("T")[0]
-        : "",
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    (Object.keys(EMPTY) as (keyof typeof EMPTY)[]).forEach((k) => {
+      if (!form[k]) errs[k] = "Obligatorio";
     });
-    if (selectedDates[0]) {
-      validateField("birthDate", selectedDates[0].toISOString().split("T")[0]);
-    }
-  };
-
-  const validateField = (name: string, value: string) => {
-    let error = "";
-
-    if (!value) {
-      error = "Este campo es obligatorio";
-    }
-    if (
-      name === "email" &&
-      value &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    ) {
-      error = "Ingrese un correo válido";
-    }
-    if (name === "phone" && value && !/^\d{1,15}$/.test(value)) {
-      error = "Ingrese un número válido (máx. 15 dígitos)";
-    }
-    if (
-      (name === "firstName" || name === "lastName") &&
-      (value.length < 1 || value.length > 100)
-    ) {
-      error = "Debe tener entre 1 y 100 caracteres";
-    }
-
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-    Object.keys(formData).forEach((key) => {
-      const value = formData[key as keyof typeof formData];
-      if (!value) {
-        newErrors[key] = "Este campo es obligatorio";
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      errs.email = "Correo no válido";
+    if (form.phone && !/^\d{1,15}$/.test(form.phone))
+      errs.phone = "Solo dígitos (máx. 15)";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
+    if (!validate()) return;
     try {
       setLoading(true);
-      const { data: newAlumn } = await axiosInstance.post("/alumns", formData);
-
-      onAlumnCreated(newAlumn);
-      showNotification(
-        "success",
-        "Crear Alumno",
-        "Alumno creado correctamente"
-      );
-      handleCloseModal();
+      const { data } = await axiosInstance.post("/alumns", form);
+      onAlumnCreated(data);
+      showNotification("success", "Crear Alumno", "Alumno creado correctamente");
+      handleClose();
     } catch (error: any) {
-      console.error(
-        "Error al crear alumno:",
-        error.response?.data || error.message
-      );
-
-      const backendMessage = error.response?.data?.message;
-
-      if (
-        backendMessage === "Ya existe un alumno con este número de documento"
-      ) {
-        // Notificación específica
-        showNotification("error", "Crear Alumno", backendMessage);
-      } else {
-        // Notificación genérica
-        showNotification("error", "Crear Alumno", "Error al crear el alumno");
-      }
+      const msg = error.response?.data?.message;
+      showNotification("error", "Crear Alumno", msg ?? "Error al crear el alumno");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
-      {/* Botón de abrir modal con tooltip */}
-      <Tooltip
-        content={
-          isCommercial
-            ? "No tienes permisos para hacer esta acción"
-            : "Crear Alumno Nuevo"
-        }
-        position="left"
+    <>
+      <Button
+        size="sm"
+        variant="primary"
+        onClick={openModal}
+        disabled={isCommercial}
+        title={isCommercial ? "Sin permisos" : undefined}
       >
-        <button
-          disabled={isCommercial}
-          onClick={openModal}
-          className={`
-            flex items-center justify-center gap-2 p-2 rounded-full
-            text-sm font-medium text-white transition-colors shadow-md
-            ${
-              isCommercial
-                ? "bg-gray-400 cursor-not-allowed opacity-80"
-                : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-            }
-          `}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-        </button>
-      </Tooltip>
+        + Nuevo alumno
+      </Button>
 
-      {/* Modal */}
       <Modal
         isOpen={isOpen}
-        onClose={handleCloseModal}
-        className="max-w-[600px] p-5 lg:p-10"
+        onClose={handleClose}
+        showCloseButton={false}
+        className="max-w-[95%] lg:max-w-[600px] p-0 overflow-hidden"
       >
-        <form onSubmit={handleSubmit}>
-          <h4 className="mb-6 text-lg font-medium text-gray-800 dark:text-white/90">
-            Crear Alumno
-          </h4>
-
-          {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <SpinnerFour />
+        {/* Header */}
+        <div className="bg-gradient-to-r from-sky-700 to-cyan-600 px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-sky-200 mb-0.5">Nuevo</p>
+              <h4 className="text-lg font-bold text-white">Crear alumno</h4>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
-              <div className="col-span-1">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <form id="create-alumn-form" onSubmit={handleSubmit}>
+          <div className="bg-gray-50 dark:bg-gray-950 px-6 py-6 max-h-[65vh] overflow-y-auto">
+            <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+              <div>
                 <Label>Nombre</Label>
-                <Input
-                  type="text"
-                  name="firstName"
-                  placeholder="Nicolas"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  error={!!errors.firstName}
-                  hint={errors.firstName}
-                />
+                <Input type="text" value={form.firstName} onChange={set("firstName")} placeholder="Nicolás" error={!!errors.firstName} hint={errors.firstName} />
               </div>
-              <div className="col-span-1">
+              <div>
                 <Label>Apellidos</Label>
-                <Input
-                  type="text"
-                  name="lastName"
-                  placeholder="Garcia"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  error={!!errors.lastName}
-                  hint={errors.lastName}
-                />
+                <Input type="text" value={form.lastName} onChange={set("lastName")} placeholder="García" error={!!errors.lastName} hint={errors.lastName} />
               </div>
-              <div className="col-span-1">
+              <div>
                 <Label>Correo</Label>
-                <Input
-                  type="text"
-                  name="email"
-                  placeholder="nicolas@esmeraschool.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={!!errors.email}
-                  hint={errors.email}
-                />
+                <Input type="email" value={form.email} onChange={set("email")} placeholder="nicolas@ejemplo.com" error={!!errors.email} hint={errors.email} />
               </div>
-              <div className="col-span-1">
-                <Label>Fecha de Nacimiento</Label>
-                <div className="relative w-full">
+              <div>
+                <Label>Teléfono</Label>
+                <Input type="text" value={form.phone} onChange={set("phone")} placeholder="600123456" error={!!errors.phone} hint={errors.phone} />
+              </div>
+              <div>
+                <Label>Fecha de nacimiento</Label>
+                <div className="relative">
                   <Flatpickr
-                    value={formData.birthDate}
-                    onChange={handleDateChange}
+                    value={form.birthDate}
+                    onChange={(dates: Date[]) =>
+                      setForm((prev) => ({ ...prev, birthDate: dates[0] ? dates[0].toISOString().split("T")[0] : "" }))
+                    }
                     options={{ dateFormat: "Y-m-d" }}
                     placeholder="Seleccionar fecha"
-                    className={`h-11 w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring bg-transparent text-gray-800 border-gray-300 
-                      ${
-                        errors.birthDate
-                          ? "border-red-500 focus:border-red-500"
-                          : "focus:border-brand-300 focus:ring-brand-500/20"
-                      } 
-                      dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700`}
+                    className={`h-11 w-full rounded-lg border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring bg-transparent text-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${errors.birthDate ? "border-red-500" : "border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/10"}`}
                   />
-                  <span className="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2 dark:text-gray-400">
-                    <CalenderIcon className="size-6" />
+                  <span className="absolute text-gray-500 -translate-y-1/2 right-3 top-1/2 dark:text-gray-400 pointer-events-none">
+                    <CalenderIcon className="size-5" />
                   </span>
                 </div>
-                {errors.birthDate && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.birthDate}
-                  </p>
-                )}
+                {errors.birthDate && <p className="mt-1 text-xs text-red-500">{errors.birthDate}</p>}
               </div>
-              <div className="col-span-1">
-                <Label>Tipo de Documento</Label>
+              <div>
+                <Label>Tipo de documento</Label>
                 <Select
-                  options={options}
-                  onChange={handleSelectChange}
-                  placeholder="Seleccionar tipo de documento"
-                  className={`dark:bg-dark-900 border ${
-                    errors.documentType
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:border-brand-300 focus:ring-brand-500/20"
-                  }`}
+                  options={DOC_OPTIONS}
+                  onChange={(v) => setForm((prev) => ({ ...prev, documentType: v }))}
+                  placeholder="Seleccionar"
+                  className={`border ${errors.documentType ? "border-red-500" : "border-gray-300 dark:border-gray-700"}`}
                 />
-                {errors.documentType && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.documentType}
-                  </p>
-                )}
+                {errors.documentType && <p className="mt-1 text-xs text-red-500">{errors.documentType}</p>}
               </div>
-              <div className="col-span-1">
-                <Label>Numero de Documento</Label>
-                <Input
-                  type="text"
-                  name="documentNumber"
-                  placeholder="Y12356..."
-                  value={formData.documentNumber}
-                  onChange={handleChange}
-                  error={!!errors.documentNumber}
-                  hint={errors.documentNumber}
-                />
+              <div>
+                <Label>Número de documento</Label>
+                <Input type="text" value={form.documentNumber} onChange={set("documentNumber")} placeholder="Y1234567X" error={!!errors.documentNumber} hint={errors.documentNumber} />
               </div>
-              <div className="col-span-1 sm:col-span-2">
+              <div className="sm:col-span-2">
                 <Label>Dirección</Label>
-                <Input
-                  type="text"
-                  name="address"
-                  placeholder="Av. Reforma 100, Apt. 3B"
-                  value={formData.address}
-                  onChange={handleChange}
-                  error={!!errors.address}
-                  hint={errors.address}
-                />
+                <Input type="text" value={form.address} onChange={set("address")} placeholder="Av. Reforma 100, Apt. 3B" error={!!errors.address} hint={errors.address} />
               </div>
-              <div className="col-span-1">
-                <Label>Código Postal</Label>
-                <Input
-                  type="text"
-                  name="postalCode"
-                  placeholder="28045"
-                  value={formData.postalCode}
-                  onChange={handleChange}
-                  error={!!errors.postalCode}
-                  hint={errors.postalCode}
-                />
+              <div>
+                <Label>Código postal</Label>
+                <Input type="text" value={form.postalCode} onChange={set("postalCode")} placeholder="28045" error={!!errors.postalCode} hint={errors.postalCode} />
               </div>
-              <div className="col-span-1">
+              <div>
                 <Label>Ciudad</Label>
-                <Input
-                  type="text"
-                  name="population"
-                  placeholder="Madrid"
-                  value={formData.population}
-                  onChange={handleChange}
-                  error={!!errors.population}
-                  hint={errors.population}
-                />
+                <Input type="text" value={form.population} onChange={set("population")} placeholder="Madrid" error={!!errors.population} hint={errors.population} />
               </div>
-              <div className="col-span-1">
+              <div>
                 <Label>Provincia</Label>
-                <Input
-                  type="text"
-                  name="province"
-                  placeholder="Madrid"
-                  value={formData.province}
-                  onChange={handleChange}
-                  error={!!errors.province}
-                  hint={errors.province}
-                />
-              </div>
-              <div className="col-span-1">
-                <Label>Teléfono</Label>
-                <Input
-                  type="text"
-                  name="phone"
-                  placeholder="123456789"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  error={!!errors.phone}
-                  hint={errors.phone}
-                />
+                <Input type="text" value={form.province} onChange={set("province")} placeholder="Madrid" error={!!errors.province} hint={errors.province} />
               </div>
             </div>
-          )}
+          </div>
 
-          <div className="flex items-center justify-end w-full gap-3 mt-6">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleCloseModal}
-              disabled={loading}
-            >
-              Cerrar
-            </Button>
-            <Button size="sm" variant="primary" disabled={loading}>
-              {loading ? "Cargando..." : "Crear"}
+          {/* Footer */}
+          <div className="flex items-center justify-end gap-2 px-6 py-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-white/[0.06]">
+            <Button size="sm" variant="outline" type="button" onClick={handleClose} disabled={loading}>Cancelar</Button>
+            <Button size="sm" variant="primary" type="submit" form="create-alumn-form" disabled={loading}>
+              {loading ? "Guardando..." : "Crear alumno"}
             </Button>
           </div>
         </form>
       </Modal>
-    </div>
+    </>
   );
 }
 
