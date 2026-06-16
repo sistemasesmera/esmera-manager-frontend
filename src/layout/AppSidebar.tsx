@@ -19,24 +19,21 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { name: string; path: string; pro?: boolean; new?: boolean; legacy?: boolean }[];
 };
 
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [
-      { name: "Resumen", path: "/", pro: true },
-      { name: "Dashboard", path: "/dashboard" },
-    ],
+    path: "/",
   },
   {
     name: "Contratos",
     icon: <PageIcon />,
     subItems: [
       { name: "Mis Contratos", path: "/my-contracts" },
-      { name: "Crear", path: "/contract-create" },
+      { name: "Crear", path: "/contract-create", legacy: true },
     ],
   },
 
@@ -49,11 +46,7 @@ const navItems: NavItem[] = [
   {
     icon: <PieChartIcon />,
     name: "Leads",
-    subItems: [
-      { name: "Listado", path: "/leads" },
-      { name: "Pipeline", path: "/leads/pipeline" },
-      { name: "Resumen", path: "/crm" },
-    ],
+    path: "/leads",
   },
 
   {
@@ -252,6 +245,11 @@ const AppSidebar: React.FC = () => {
                     >
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
+                        {subItem.legacy && (
+                          <span className="ml-auto rounded-full bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                            antiguo
+                          </span>
+                        )}
                         {subItem.new && (
                           <span
                             className={`ml-auto ${
