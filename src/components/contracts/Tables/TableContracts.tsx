@@ -13,6 +13,7 @@ import SpinnerThree from "../../ui/spinner/SpinnerThree";
 import { DownloadIcon } from "../../../icons";
 import generateContractPDF from "../../../utils/generateContractPDF";
 import Tooltip from "../../ui/tooltip/Tooltip";
+import ContractModal from "../Modals/ContractModal";
 
 export default function TableContracts() {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -248,12 +249,15 @@ export default function TableContracts() {
                       isHeader
                       className="py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400"
                     >
-                      <Tooltip content="Descargar Contrato" position="left">
-                        <DownloadIcon
-                          className="size-6 cursor-pointer"
-                          onClick={() => generateContractPDF(item)}
-                        />
-                      </Tooltip>
+                      <div className="flex items-center gap-2">
+                        <ContractModal contract={item} />
+                        <Tooltip content="Descargar PDF" position="left">
+                          <DownloadIcon
+                            className="size-6 cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                            onClick={() => generateContractPDF(item)}
+                          />
+                        </Tooltip>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
