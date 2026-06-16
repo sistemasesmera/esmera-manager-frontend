@@ -86,7 +86,6 @@ export default function LeadsConversionTab() {
 
   const total = stats?.total ?? 0;
   const matriculados = stats?.byStatus?.[LeadStatus.MATRICULADO] ?? 0;
-  const descartados = stats?.byStatus?.[LeadStatus.DESCARTADO] ?? 0;
   const enPipeline =
     (stats?.byStatus?.[LeadStatus.NUEVO] ?? 0) +
     (stats?.byStatus?.[LeadStatus.CONTACTADO] ?? 0) +

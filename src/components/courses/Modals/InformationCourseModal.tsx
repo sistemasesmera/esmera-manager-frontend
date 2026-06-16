@@ -154,7 +154,6 @@ export default function InformationCourseModal({ course, onUpdate }: Props) {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej. Máster en Barbería"
                 disabled={isReadOnly}
-                required
               />
               {isReadOnly && (
                 <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">

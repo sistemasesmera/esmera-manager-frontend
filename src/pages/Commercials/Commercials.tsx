@@ -36,10 +36,6 @@ function Initials({ name }: { name: string }) {
   );
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  COMMERCIAL: "Comercial",
-  COMMERCIAL_PLUS: "Plus",
-};
 
 export default function Commercials() {
   const [commercials, setCommercials] = useState<Commercial[]>([]);
