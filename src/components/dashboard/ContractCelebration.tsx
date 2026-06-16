@@ -14,7 +14,7 @@ function playCelebrationSound() {
       (window as unknown as { webkitAudioContext: typeof AudioContext })
         .webkitAudioContext;
     const ctx = new AudioCtx();
-    const notes = [523, 659, 784, 1047]; // C5 E5 G5 C6
+    const notes = [523, 659, 784, 1047];
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -24,14 +24,27 @@ function playCelebrationSound() {
       osc.type = "sine";
       const t = ctx.currentTime + i * 0.13;
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.25, t + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
       osc.start(t);
-      osc.stop(t + 0.3);
+      osc.stop(t + 0.35);
     });
   } catch {
-    // No interrumpir si el navegador bloquea AudioContext
+    // silencio si el navegador bloquea AudioContext
   }
+}
+
+function fireConfetti() {
+  // Ráfaga central grande
+  confetti({ particleCount: 200, spread: 80, origin: { x: 0.5, y: 0.4 }, gravity: 0.9 });
+  // Cañones laterales
+  setTimeout(() => confetti({ particleCount: 120, spread: 120, angle: 60,  origin: { x: 0, y: 0.5 } }), 180);
+  setTimeout(() => confetti({ particleCount: 120, spread: 120, angle: 120, origin: { x: 1, y: 0.5 } }), 180);
+  // Segunda ráfaga central
+  setTimeout(() => confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.35 }, gravity: 1.1 }), 420);
+  // Lluvia final
+  setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { x: 0.3, y: 0.3 }, ticks: 200 }), 700);
+  setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { x: 0.7, y: 0.3 }, ticks: 200 }), 850);
 }
 
 const fmt = (n: number) =>
@@ -46,59 +59,47 @@ export default function ContractCelebration({ event, onDismiss }: Props) {
 
     setVisible(true);
     playCelebrationSound();
+    fireConfetti();
 
-    // Salva de confeti en tres ráfagas
-    confetti({ particleCount: 120, spread: 70, origin: { y: 0.45 } });
-    setTimeout(
-      () => confetti({ particleCount: 60, spread: 100, origin: { x: 0.15, y: 0.5 } }),
-      200
-    );
-    setTimeout(
-      () => confetti({ particleCount: 60, spread: 100, origin: { x: 0.85, y: 0.5 } }),
-      380
-    );
-
-    timerRef.current = setTimeout(() => dismiss(), 7000);
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    timerRef.current = setTimeout(() => dismiss(), 8000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [event]);
 
   function dismiss() {
     setVisible(false);
-    setTimeout(onDismiss, 350);
+    setTimeout(onDismiss, 400);
   }
 
   if (!event) return null;
 
   return (
     <div
-      className={`fixed top-20 left-1/2 z-[9999] -translate-x-1/2 transition-all duration-350 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3 pointer-events-none"
+      className={`fixed top-32 left-1/2 z-[9999] -translate-x-1/2 transition-all duration-400 ease-out ${
+        visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-4 scale-95 pointer-events-none"
       }`}
     >
-      <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-2xl dark:border-white/10 dark:bg-gray-900 min-w-[300px] max-w-[460px]">
+      <div className="flex items-center gap-5 rounded-3xl border border-emerald-100 bg-white px-8 py-6 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)] dark:border-emerald-900/40 dark:bg-gray-900 min-w-[380px] max-w-[560px]">
+
         {/* Icono */}
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-2xl dark:bg-emerald-900/30">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-4xl">
           🎉
         </div>
 
         {/* Texto */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-            ¡Nuevo contrato!
+          <p className="text-xs font-bold uppercase tracking-widest text-emerald-500 dark:text-emerald-400 mb-1">
+            ¡Nuevo contrato firmado!
           </p>
-          <p className="mt-0.5 text-sm font-bold text-gray-800 dark:text-white/90 truncate">
+          <p className="text-xl font-bold text-gray-900 dark:text-white truncate leading-tight">
             {event.alumnName}
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 truncate">
             Firmado por{" "}
-            <span className="font-medium text-gray-600 dark:text-gray-300">
+            <span className="font-semibold text-gray-600 dark:text-gray-300">
               {event.commercialName}
             </span>
           </p>
-          <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-none">
+          <p className="mt-2 text-3xl font-extrabold text-emerald-500 dark:text-emerald-400 leading-none">
             {fmt(event.amount)} €
           </p>
         </div>
@@ -106,15 +107,11 @@ export default function ContractCelebration({ event, onDismiss }: Props) {
         {/* Cerrar */}
         <button
           onClick={dismiss}
-          className="shrink-0 rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/[0.06] dark:hover:text-gray-200 transition-colors"
+          className="self-start shrink-0 rounded-lg p-1.5 text-gray-300 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-white/[0.06] dark:hover:text-gray-200 transition-colors"
           aria-label="Cerrar"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M6.04 16.54a1 1 0 1 0 1.42 1.42L12 13.41l4.54 4.55a1 1 0 0 0 1.42-1.42L13.41 12l4.55-4.54a1 1 0 0 0-1.42-1.42L12 10.59 7.46 6.04A1 1 0 0 0 6.04 7.46L10.59 12l-4.55 4.54Z"
-            />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path fillRule="evenodd" clipRule="evenodd" d="M6.04 16.54a1 1 0 1 0 1.42 1.42L12 13.41l4.54 4.55a1 1 0 0 0 1.42-1.42L13.41 12l4.55-4.54a1 1 0 0 0-1.42-1.42L12 10.59 7.46 6.04A1 1 0 0 0 6.04 7.46L10.59 12l-4.55 4.54Z" />
           </svg>
         </button>
       </div>
