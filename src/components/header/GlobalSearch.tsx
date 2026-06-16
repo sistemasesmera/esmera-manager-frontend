@@ -33,6 +33,7 @@ export default function GlobalSearch() {
   const [results, setResults] = useState<SearchResults>(EMPTY);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -70,11 +71,14 @@ export default function GlobalSearch() {
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
+        setSearchError(false);
         const { data } = await axiosInstance.get("/search", { params: { q: query.trim() } });
         setResults(data);
         setOpen(true);
       } catch {
         setResults(EMPTY);
+        setSearchError(true);
+        setOpen(true);
       } finally {
         setLoading(false);
       }
@@ -132,11 +136,15 @@ export default function GlobalSearch() {
             <p className="px-4 py-3 text-sm text-gray-400">Buscando...</p>
           )}
 
-          {!loading && total === 0 && (
+          {!loading && searchError && (
+            <p className="px-4 py-3 text-sm text-red-500">Error al buscar. Inténtalo de nuevo.</p>
+          )}
+
+          {!loading && !searchError && total === 0 && (
             <p className="px-4 py-3 text-sm text-gray-400">Sin resultados</p>
           )}
 
-          {!loading && results.leads.length > 0 && (
+          {!loading && !searchError && results.leads.length > 0 && (
             <div>
               <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/[0.03]">
                 Leads
@@ -156,7 +164,7 @@ export default function GlobalSearch() {
             </div>
           )}
 
-          {!loading && results.alumns.length > 0 && (
+          {!loading && !searchError && results.alumns.length > 0 && (
             <div>
               <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/[0.03]">
                 Alumnos
@@ -176,7 +184,7 @@ export default function GlobalSearch() {
             </div>
           )}
 
-          {!loading && results.contracts.length > 0 && (
+          {!loading && !searchError && results.contracts.length > 0 && (
             <div>
               <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/[0.03]">
                 Contratos
