@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { RootState } from "../../store";
 import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import Label from "../../components/form/Label";
@@ -76,7 +74,6 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export default function LeadDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useSelector((state: RootState) => state.auth);
   const { showNotification } = useNotification();
 
   const [lead, setLead] = useState<Lead | null>(null);

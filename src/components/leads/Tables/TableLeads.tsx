@@ -11,7 +11,6 @@ import axiosInstance from "../../../axios/axiosConfig";
 import SpinnerThree from "../../ui/spinner/SpinnerThree";
 import Lead, {
   LeadStatus,
-  LEAD_STATUS_LABELS,
   LEAD_SOURCE_LABELS,
 } from "../../../types/frontend/lead";
 import CreateLeadModal from "../Modals/CreateLeadModal";
