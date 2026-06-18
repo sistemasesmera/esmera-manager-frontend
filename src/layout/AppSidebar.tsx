@@ -234,7 +234,7 @@ const AppSidebar: React.FC = () => {
             >
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems
-                  .filter((subItem) => !subItem.admin || user?.role === "ADMIN")
+                  .filter((subItem) => !subItem.admin || user?.role === "ADMIN" || user?.role === "COMMERCIAL_PLUS")
                   .map((subItem) => (
                   <li key={subItem.name}>
                     <Link
