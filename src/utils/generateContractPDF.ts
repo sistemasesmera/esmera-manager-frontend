@@ -12,6 +12,13 @@ export function generateContractPDF(contractData: BackendContract) {
   // Configuración de las propiedades del PDF
   const pdf = new jsPDF();
 
+  // Datos que varían según la sede del contrato (Madrid vs. resto, p.ej. La Rioja)
+  const isMadrid = contractData.branch.name === "Madrid";
+  const cityName = isMadrid ? "Madrid" : "Logroño";
+  const contactEmail = isMadrid
+    ? "alumnos@esmeraschool.com"
+    : "alumnoslarioja@esmeraschool.com";
+
   pdf.setProperties({
     title: "Contrato Esmera School ",
     subject: "Contrato Esmera School",
@@ -84,7 +91,7 @@ export function generateContractPDF(contractData: BackendContract) {
         ? contractData.courseEndDate
         : "Pendiente por confirmar"
     }`,
-    `ASESOR: ${contractData.user.firstName.toLocaleUpperCase()}                Madrid, ${
+    `ASESOR: ${contractData.user.firstName.toLocaleUpperCase()}                ${cityName}, ${
       contractData.contractDate
     }`,
   ];
@@ -110,8 +117,7 @@ export function generateContractPDF(contractData: BackendContract) {
   const footerX = 0; // Posición X del footer (0 para el borde izquierdo)
   const footerY = pdf.internal.pageSize.height - footerImageHeight; // Posición Y para estar pegado al fondo
 
-  const selectedFooter =
-    contractData.branch.name === "Madrid" ? footerBase64 : footerRioja;
+  const selectedFooter = isMadrid ? footerBase64 : footerRioja;
 
   pdf.addImage(
     selectedFooter,
@@ -174,7 +180,7 @@ export function generateContractPDF(contractData: BackendContract) {
     `Correo Electrónico: ${contractData.alumn.email}`,
     ``,
     ``,
-    `Madrid, ${contractData.contractDate}`,
+    `${cityName}, ${contractData.contractDate}`,
   ];
 
   dataPage3.forEach((line, index) => {
@@ -331,7 +337,7 @@ export function generateContractPDF(contractData: BackendContract) {
     "Asimismo, ESMERA SCHOOL establece como domicilio de notificaciones el siguiente:",
     `Esmera SCHOOL ${
       contractData.branch.address ? contractData.branch.address : ","
-    } Mail: alumnos@esmeraschool.com",
+    } Mail: ${contactEmail}",
     "`,
     "Quinta. Con la firma del presente documento el contrato queda en firme no habiendo lugar a desestimación.",
     "En caso de que el Cliente incurra en impago de la deuda adquirida mediante el presente acuerdo de financiación, la empresa prestadora del ",
@@ -355,7 +361,7 @@ export function generateContractPDF(contractData: BackendContract) {
   pdf.setFontSize(10);
   const startY6 = startYContinuation + continuationText.length * 4.6; // Acercar a texto anterior
 
-  pdf.text(`Madrid, ${contractData.contractDate}`, 10, startY6);
+  pdf.text(`${cityName}, ${contractData.contractDate}`, 10, startY6);
   pdf.text("_____________________", 21, startY6 + 8);
 
   // Coordenadas para las firmas
@@ -458,7 +464,7 @@ export function generateContractPDF(contractData: BackendContract) {
         "15.	En caso de que el alumno no pueda cumplir con el cronograma educativo por causas justificadas, dispondrá de un plazo máximo de un año desde la firma del contrato para completar su formación. Las clases perdidas por este motivo se recuperarán previa coordinación con el docente, dentro de la disponibilidad de horarios y aulas del centro. El alumno no podrá modificar unilateralmente los horarios, debiendo respetar la planificación establecida por la Academia y la disponibilidad del profesorado.",
         "16.	Con el acto de bienvenida, el contrato queda formalizado. Los libros correspondientes a las titulaciones internacionales se entregan al alumno como parte de la formación y pasan a ser de su propiedad. Una vez entregados, la Academia no se responsabiliza de su pérdida, extravío o deterioro. Los libros correspondientes a las titulaciones propias de la Academia se facilitarán en formato digital, excepto los libros del área de Estética, que se entregarán en formato físico. En caso de que el alumno desee disponer de los libros digitales en formato impreso, podrá adquirirlos en la Academia, asumiendo el coste correspondiente. Cualquier otro material didáctico distinto de los libros necesario para el desarrollo del curso no está incluido y deberá ser abonado por el alumno según las condiciones establecidas por la Academia.",
         "17.	Adicionalmente, el alumno podrá recibir material como obsequio por parte de la Asociación “El Privilegio”, entidad totalmente independiente de la Academia. Dicho material tiene carácter de regalo, pudiendo variar en tipo y contenido según disponibilidad. En caso de no desearlo, el alumno podrá dejarlo para que la asociación lo gestione.",
-        "18.	Para notificar inasistencias o incidencias, el alumno deberá escribir a: alumnos@esmeraschool.com.",
+        `18.	Para notificar inasistencias o incidencias, el alumno deberá escribir a: ${contactEmail}.`,
         "19.	Para incidencias relacionadas con la financiación mediante SEQURA: 931760008.",
         "20.	Cualquier incidencia que se produzca durante el curso deberá seguir el conducto regulador establecido y no dirigirse a los asesores que realizaron la venta del curso. Si la incidencia está relacionada con la formación, el alumno deberá comunicarse primero con su docente responsable. Si la incidencia está relacionada con la financiación del curso, el alumno deberá comunicarse con la responsable Sra. Sara. Si el alumno desea contactar con la dirección de la Academia, deberá hacerlo exclusivamente por correo electrónico, proporcionando todos los detalles necesarios para su gestión. Queda expresamente prohibido solicitar atención o interrumpir al personal directivo mientras se encuentren circulando por las instalaciones del centro.",
         "21.	La ceremonia de graduación es un acto oficial y representativo. La toga y el birrete requieren fianza de 50 €, descontando 20 € por limpieza al devolverlos.",
@@ -1012,7 +1018,7 @@ export function generateContractPDF(contractData: BackendContract) {
     finalYConditions + conditionsText.length * 4 + extraSpaceBeforeDate; // Nueva posición Y para la fecha
 
   // Texto para la fecha
-  const fechaText = `Madrid, ${contractData.contractDate}`;
+  const fechaText = `${cityName}, ${contractData.contractDate}`;
 
   // Añadir texto de la fecha
   pdf.setFontSize(10); // Tamaño de fuente para la fecha

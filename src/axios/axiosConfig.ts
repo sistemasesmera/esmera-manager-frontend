@@ -1,7 +1,6 @@
 import axios from "axios";
 
 // Production mode = https://esmera-manager-backend.onrender.com
-// Local mode = http://localhost:3000
 const axiosInstance = axios.create({
   baseURL: "https://esmera-manager-backend.onrender.com",
   timeout: 90000,
