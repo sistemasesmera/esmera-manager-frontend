@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PageMeta from "../../components/common/PageMeta";
 import axiosInstance from "../../axios/axiosConfig";
 import SpinnerThree from "../../components/ui/spinner/SpinnerThree";
@@ -153,7 +152,6 @@ const StatCard = ({
 );
 
 export default function Ecommerce() {
-  const navigate = useNavigate();
   const [stats, setStats] = useState<HomeStats | null>(null);
   const [dashData, setDashData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
