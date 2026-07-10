@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PageMeta from "../../components/common/PageMeta";
 import axiosInstance from "../../axios/axiosConfig";
-import { RootState } from "../../store";
 import SpinnerThree from "../../components/ui/spinner/SpinnerThree";
 import UpcomingContactsWidget from "../../components/crm/UpcomingContactsWidget";
 import {
@@ -19,16 +17,6 @@ interface HomeStats {
   monthContracts: number;
   monthAmount: number;
   periodLabel: string;
-}
-
-interface RecentContract {
-  id: string;
-  name: string;
-  coursePrice: number;
-  createdAt: string;
-  alumn: { id: string; firstName: string; lastName: string } | null;
-  course: { id: string; name: string } | null;
-  user: { id: string; firstName: string; lastName: string } | null;
 }
 
 interface ComercialMetric {
@@ -166,23 +154,18 @@ const StatCard = ({
 
 export default function Ecommerce() {
   const navigate = useNavigate();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const isCommercial = user?.role === "COMMERCIAL";
   const [stats, setStats] = useState<HomeStats | null>(null);
-  const [contracts, setContracts] = useState<RecentContract[]>([]);
   const [dashData, setDashData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
-      const [statsRes, contractsRes, dashRes] = await Promise.allSettled([
+      const [statsRes, dashRes] = await Promise.allSettled([
         axiosInstance.get("/dashboard/home-stats"),
-        axiosInstance.get("/contracts", { params: { page: 1, limit: 5 } }),
         axiosInstance.get("/dashboard"),
       ]);
       if (statsRes.status === "fulfilled") setStats(statsRes.value.data);
-      if (contractsRes.status === "fulfilled") setContracts(contractsRes.value.data.data ?? []);
       if (dashRes.status === "fulfilled") setDashData(dashRes.value.data);
       setLoading(false);
     };
@@ -242,54 +225,6 @@ export default function Ecommerce() {
             <SalesByBranch dashData={dashData} fmt={fmt} />
           )}
 
-          {/* Últimos contratos — oculto para comerciales */}
-          {!isCommercial && <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="flex items-center justify-between px-5 pt-5 pb-4 md:px-6">
-              <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">
-                Últimos contratos
-              </h3>
-              <button
-                onClick={() => navigate("/contracts")}
-                className="text-sm text-brand-500 hover:underline dark:text-brand-400"
-              >
-                Ver todos
-              </button>
-            </div>
-
-            {contracts.length === 0 ? (
-              <p className="px-5 pb-5 text-sm text-gray-400 dark:text-gray-500">
-                No hay contratos aún.
-              </p>
-            ) : (
-              <div className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {contracts.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex items-center justify-between gap-3 px-5 py-3 md:px-6 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-800 dark:text-white/90 truncate">
-                        {c.alumn
-                          ? `${c.alumn.firstName} ${c.alumn.lastName}`
-                          : c.name}
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
-                        {c.course?.name ?? "—"}
-                        {c.user
-                          ? ` · ${c.user.firstName} ${c.user.lastName}`
-                          : ""}
-                        {" · "}
-                        {new Date(c.createdAt).toLocaleDateString("es-ES")}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-sm font-semibold text-gray-700 dark:text-white/80">
-                      {fmt(c.coursePrice)} €
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>}
         </div>
       )}
     </>
