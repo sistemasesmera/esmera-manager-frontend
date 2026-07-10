@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import PageMeta from "../../components/common/PageMeta";
 import axiosInstance from "../../axios/axiosConfig";
+import { RootState } from "../../store";
 import SpinnerThree from "../../components/ui/spinner/SpinnerThree";
 import UpcomingContactsWidget from "../../components/crm/UpcomingContactsWidget";
 import {
@@ -164,6 +166,8 @@ const StatCard = ({
 
 export default function Ecommerce() {
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isCommercial = user?.role === "COMMERCIAL";
   const [stats, setStats] = useState<HomeStats | null>(null);
   const [contracts, setContracts] = useState<RecentContract[]>([]);
   const [dashData, setDashData] = useState<DashboardData | null>(null);
@@ -238,8 +242,8 @@ export default function Ecommerce() {
             <SalesByBranch dashData={dashData} fmt={fmt} />
           )}
 
-          {/* Últimos contratos */}
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+          {/* Últimos contratos — oculto para comerciales */}
+          {!isCommercial && <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div className="flex items-center justify-between px-5 pt-5 pb-4 md:px-6">
               <h3 className="text-base font-semibold text-gray-800 dark:text-white/90">
                 Últimos contratos
@@ -285,7 +289,7 @@ export default function Ecommerce() {
                 ))}
               </div>
             )}
-          </div>
+          </div>}
         </div>
       )}
     </>
