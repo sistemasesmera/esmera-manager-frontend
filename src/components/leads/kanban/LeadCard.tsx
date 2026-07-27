@@ -6,9 +6,11 @@ import Button from "../../ui/button/Button";
 
 interface LeadCardProps {
   lead: Lead;
+  commercials?: { id: string; firstName: string; lastName: string }[];
+  onAssign?: (leadId: string, assignedToId: string) => void;
 }
 
-export default function LeadCard({ lead }: LeadCardProps) {
+export default function LeadCard({ lead, commercials, onAssign }: LeadCardProps) {
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -59,6 +61,22 @@ export default function LeadCard({ lead }: LeadCardProps) {
         <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
           {lead.branch.name}
         </p>
+      )}
+
+      {onAssign && commercials && (
+        <select
+          value=""
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => e.target.value && onAssign(lead.id, e.target.value)}
+          className="mt-3 w-full rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/10 text-xs text-rose-600 dark:text-rose-400 px-2 py-1.5 focus:outline-none focus:ring focus:border-rose-300 focus:ring-rose-500/10"
+        >
+          <option value="">Asignar a...</option>
+          {commercials.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.firstName} {c.lastName}
+            </option>
+          ))}
+        </select>
       )}
 
       <div className="mt-3">

@@ -11,7 +11,7 @@ export default function LeadsPipeline() {
       />
       <PageBreadcrumb pageTitle="Pipeline de Leads" />
 
-      <LeadsKanbanBoard />
+      <LeadsKanbanBoard scope="assigned" />
     </div>
   );
 }

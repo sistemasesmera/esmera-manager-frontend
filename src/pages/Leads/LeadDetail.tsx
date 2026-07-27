@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { RootState } from "../../store";
 import PageMeta from "../../components/common/PageMeta";
 import Button from "../../components/ui/button/Button";
 import Label from "../../components/form/Label";
@@ -75,13 +77,15 @@ export default function LeadDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const canAssign = user?.role === "ADMIN" || user?.role === "COMMERCIAL_PLUS";
 
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState<LeadStatus>(LeadStatus.NUEVO);
+  const [status, setStatus] = useState<LeadStatus>(LeadStatus.SIN_ASIGNAR);
   const [discardReason, setDiscardReason] = useState<LeadDiscardReason | "">("");
   const [discardReasonOther, setDiscardReasonOther] = useState("");
 
@@ -92,6 +96,11 @@ export default function LeadDetail() {
 
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [showConvertForm, setShowConvertForm] = useState(false);
+
+  const [commercials, setCommercials] = useState<{ id: string; firstName: string; lastName: string }[]>([]);
+  const [assigning, setAssigning] = useState(false);
+
+  const isManageable = !!lead?.assignedTo;
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -121,6 +130,28 @@ export default function LeadDetail() {
       .then(({ data }) => setActivityLogs(data.data ?? []))
       .catch(() => {});
   }, [id]);
+
+  useEffect(() => {
+    if (!canAssign) return;
+    axiosInstance
+      .get("/users/commercials-select")
+      .then(({ data }) => setCommercials(data))
+      .catch(() => {});
+  }, [canAssign]);
+
+  const handleAssign = async (assignedToId: string) => {
+    if (!lead || !assignedToId) return;
+    setAssigning(true);
+    try {
+      const { data } = await axiosInstance.patch(`/leads/${lead.id}/assign`, { assignedToId });
+      setLead(data);
+      showNotification("success", "Lead", "Lead asignado correctamente");
+    } catch {
+      showNotification("error", "Lead", "Error al asignar el lead");
+    } finally {
+      setAssigning(false);
+    }
+  };
 
   const handleSaveNotes = async () => {
     if (!lead) return;
@@ -265,6 +296,29 @@ export default function LeadDetail() {
         </div>
       </div>
 
+      {/* Banner: lead sin asignar */}
+      {!isManageable && (
+        <div className="rounded-2xl border border-dashed border-rose-300 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/10 p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+          <p className="text-sm text-rose-600 dark:text-rose-400 font-medium">
+            Este lead está sin asignar. No se puede gestionar (estado, notas, próximo contacto o matrícula) hasta asignarlo a un comercial.
+            {assigning && " Asignando..."}
+          </p>
+          {canAssign && (
+            <div className="w-full sm:w-[220px]">
+              <Select
+                options={[
+                  { value: "", label: "Asignar a..." },
+                  ...commercials.map((c) => ({ value: c.id, label: `${c.firstName} ${c.lastName}` })),
+                ]}
+                defaultValue=""
+                onChange={handleAssign}
+                className="border border-rose-200 dark:border-rose-800"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Body: 2 columns */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
@@ -280,11 +334,23 @@ export default function LeadDetail() {
             <div className="space-y-3">
               <InfoRow label="Curso de interés" value={lead.nameCourse} />
               <InfoRow label="Categoría" value={lead.categoryCourse} />
-              <InfoRow label="Asignado a" value={
-                lead.assignedTo
-                  ? `${lead.assignedTo.firstName} ${lead.assignedTo.lastName}`
-                  : <span className="text-gray-300 dark:text-gray-600">Sin asignar</span>
-              } />
+              {canAssign && isManageable ? (
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Asignado a</span>
+                  <Select
+                    options={commercials.map((c) => ({ value: c.id, label: `${c.firstName} ${c.lastName}` }))}
+                    defaultValue={lead.assignedTo?.id ?? ""}
+                    onChange={handleAssign}
+                    className="border border-gray-200 dark:border-gray-700"
+                  />
+                </div>
+              ) : (
+                <InfoRow label="Asignado a" value={
+                  lead.assignedTo
+                    ? `${lead.assignedTo.firstName} ${lead.assignedTo.lastName}`
+                    : <span className="text-gray-300 dark:text-gray-600">Sin asignar</span>
+                } />
+              )}
               {lead.status === LeadStatus.DESCARTADO && lead.discardReason && (
                 <InfoRow
                   label="Motivo de descarte"
@@ -322,9 +388,17 @@ export default function LeadDetail() {
             ) : (
               <div>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
-                  Aún no se ha matriculado. Cuando esté listo, conviértelo en alumno.
+                  {isManageable
+                    ? "Aún no se ha matriculado. Cuando esté listo, conviértelo en alumno."
+                    : "Asigna este lead a un comercial antes de poder matricularlo."}
                 </p>
-                <Button size="sm" variant="outline" onClick={() => setShowConvertForm(true)} className="w-full justify-center">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowConvertForm(true)}
+                  disabled={!isManageable}
+                  className="w-full justify-center"
+                >
                   Hacer matrícula
                 </Button>
               </div>
@@ -352,7 +426,7 @@ export default function LeadDetail() {
                   className="border border-gray-200 dark:border-gray-700"
                 />
               </div>
-              <Button size="sm" variant="primary" onClick={handleSaveStatus} disabled={savingStatus}>
+              <Button size="sm" variant="primary" onClick={handleSaveStatus} disabled={savingStatus || !isManageable}>
                 {savingStatus ? "Guardando..." : "Guardar"}
               </Button>
             </div>
@@ -407,14 +481,14 @@ export default function LeadDetail() {
                 </span>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="primary" onClick={() => handleSaveNextContact()} disabled={savingNextContact}>
+                <Button size="sm" variant="primary" onClick={() => handleSaveNextContact()} disabled={savingNextContact || !isManageable}>
                   {savingNextContact ? "..." : "Guardar"}
                 </Button>
                 {nextContactDate && (
                   <Button
                     size="sm"
                     variant="outline"
-                    disabled={savingNextContact}
+                    disabled={savingNextContact || !isManageable}
                     onClick={() => { setNextContactDate(""); handleSaveNextContact(""); }}
                   >
                     Quitar
@@ -439,7 +513,7 @@ export default function LeadDetail() {
               rows={4}
             />
             <div className="flex justify-end mt-3">
-              <Button size="sm" variant="outline" onClick={handleSaveNotes} disabled={savingNotes}>
+              <Button size="sm" variant="outline" onClick={handleSaveNotes} disabled={savingNotes || !isManageable}>
                 {savingNotes ? "Guardando..." : "Guardar notas"}
               </Button>
             </div>

@@ -19,7 +19,7 @@ import { useNotification } from "../../../context/NotificationContext";
 
 const STATUS_PILLS: { value: LeadStatus | ""; label: string }[] = [
   { value: "", label: "Todos" },
-  { value: LeadStatus.NUEVO, label: "Nuevo" },
+  { value: LeadStatus.SIN_ASIGNAR, label: "Sin asignar" },
   { value: LeadStatus.CONTACTADO, label: "Contactado" },
   { value: LeadStatus.EN_SEGUIMIENTO, label: "En seguimiento" },
   { value: LeadStatus.MATRICULADO, label: "Matriculado" },
@@ -37,12 +37,17 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit" });
 }
 
-export default function TableLeads() {
+interface TableLeadsProps {
+  scope: "unassigned" | "assigned";
+}
+
+export default function TableLeads({ scope }: TableLeadsProps) {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const { showNotification } = useNotification();
   const isAdmin = user?.role === "ADMIN";
   const canAssign = isAdmin || user?.role === "COMMERCIAL_PLUS";
+  const isUnassignedScope = scope === "unassigned";
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +61,6 @@ export default function TableLeads() {
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "">("");
   const [branchFilter, setBranchFilter] = useState("");
   const [assignedFilter, setAssignedFilter] = useState("");
-  const [unassigned, setUnassigned] = useState(false);
 
   const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
   const [commercials, setCommercials] = useState<{ id: string; firstName: string; lastName: string }[]>([]);
@@ -81,10 +85,12 @@ export default function TableLeads() {
           page,
           limit: LIMIT,
           search: searchTerm.trim() || undefined,
-          status: statusFilter || undefined,
+          status: isUnassignedScope ? undefined : statusFilter || undefined,
           branchId: canAssign ? branchFilter || undefined : undefined,
-          assignedToId: canAssign ? assignedFilter || undefined : undefined,
-          unassigned: unassigned ? true : undefined,
+          assignedToId:
+            canAssign && !isUnassignedScope ? assignedFilter || undefined : undefined,
+          unassigned: isUnassignedScope ? true : undefined,
+          assigned: isUnassignedScope ? undefined : true,
         },
       });
       setLeads(data.data);
@@ -97,7 +103,7 @@ export default function TableLeads() {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, statusFilter, branchFilter, assignedFilter, unassigned, canAssign]);
+  }, [searchTerm, statusFilter, branchFilter, assignedFilter, isUnassignedScope, canAssign]);
 
   useEffect(() => {
     const t = setTimeout(() => fetchLeads(1), 350);
@@ -142,38 +148,31 @@ export default function TableLeads() {
 
       {/* Filtros */}
       <div className="px-5 pb-4 md:px-6 space-y-3">
-        {/* Status pills */}
-        <div className="flex flex-wrap gap-1.5">
-          {STATUS_PILLS.map((pill) => (
-            <button
-              key={pill.value}
-              onClick={() => { setStatusFilter(pill.value as LeadStatus | ""); setCurrentPage(1); }}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                statusFilter === pill.value
-                  ? "bg-amber-500 text-white"
-                  : "bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.10]"
-              }`}
-            >
-              {pill.label}
-            </button>
-          ))}
-          {/* Sin asignar — solo admin */}
-          {isAdmin && (
-            <button
-              onClick={() => { setUnassigned(!unassigned); setAssignedFilter(""); setCurrentPage(1); }}
-              className={`ml-1 rounded-full px-3 py-1 text-xs font-medium transition-colors flex items-center gap-1 ${
-                unassigned
-                  ? "bg-rose-500 text-white"
-                  : "border border-dashed border-rose-300 dark:border-rose-700 text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/10"
-              }`}
-            >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z" clipRule="evenodd" />
-              </svg>
-              Sin asignar
-            </button>
-          )}
-        </div>
+        {isUnassignedScope ? (
+          <p className="text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z" clipRule="evenodd" />
+            </svg>
+            Estos leads no se pueden gestionar hasta asignarlos a un comercial.
+          </p>
+        ) : (
+          /* Status pills */
+          <div className="flex flex-wrap gap-1.5">
+            {STATUS_PILLS.map((pill) => (
+              <button
+                key={pill.value}
+                onClick={() => { setStatusFilter(pill.value as LeadStatus | ""); setCurrentPage(1); }}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  statusFilter === pill.value
+                    ? "bg-amber-500 text-white"
+                    : "bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.10]"
+                }`}
+              >
+                {pill.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Search + selects */}
         <div className="flex flex-wrap gap-3">
@@ -197,12 +196,14 @@ export default function TableLeads() {
                 onChange={(v) => { setBranchFilter(v); setCurrentPage(1); }}
                 className="border border-gray-200 dark:border-gray-700 w-[160px]"
               />
-              <Select
-                options={[{ value: "", label: "Todos los comerciales" }, ...commercials.map((c) => ({ value: c.id, label: `${c.firstName} ${c.lastName}` }))]}
-                defaultValue=""
-                onChange={(v) => { setAssignedFilter(v); setUnassigned(false); setCurrentPage(1); }}
-                className="border border-gray-200 dark:border-gray-700 w-[180px]"
-              />
+              {!isUnassignedScope && (
+                <Select
+                  options={[{ value: "", label: "Todos los comerciales" }, ...commercials.map((c) => ({ value: c.id, label: `${c.firstName} ${c.lastName}` }))]}
+                  defaultValue=""
+                  onChange={(v) => { setAssignedFilter(v); setCurrentPage(1); }}
+                  className="border border-gray-200 dark:border-gray-700 w-[180px]"
+                />
+              )}
             </>
           )}
         </div>
@@ -225,7 +226,7 @@ export default function TableLeads() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
             </svg>
             <p className="text-sm text-gray-400 dark:text-gray-500">
-              {unassigned ? "No hay leads sin asignar" : "No hay leads para mostrar"}
+              {isUnassignedScope ? "No hay leads sin asignar" : "No hay leads para mostrar"}
             </p>
           </div>
         ) : (

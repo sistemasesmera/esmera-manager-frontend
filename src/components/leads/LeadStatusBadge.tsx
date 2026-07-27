@@ -1,8 +1,8 @@
 import { LeadStatus, LEAD_STATUS_LABELS } from "../../types/frontend/lead";
 
 export const STATUS_BADGE_CLASSES: Record<LeadStatus, string> = {
-  [LeadStatus.NUEVO]:
-    "bg-blue-100 text-blue-600 dark:bg-blue-700 dark:text-white",
+  [LeadStatus.SIN_ASIGNAR]:
+    "bg-rose-100 text-rose-600 dark:bg-rose-700 dark:text-white",
   [LeadStatus.CONTACTADO]:
     "bg-yellow-100 text-yellow-600 dark:bg-yellow-700 dark:text-white",
   [LeadStatus.EN_SEGUIMIENTO]:

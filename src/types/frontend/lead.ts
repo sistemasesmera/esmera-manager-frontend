@@ -8,7 +8,7 @@ export enum LeadSource {
 }
 
 export enum LeadStatus {
-  NUEVO = "NUEVO",
+  SIN_ASIGNAR = "SIN_ASIGNAR",
   CONTACTADO = "CONTACTADO",
   EN_SEGUIMIENTO = "EN_SEGUIMIENTO",
   MATRICULADO = "MATRICULADO",
@@ -69,7 +69,7 @@ export default interface Lead {
 }
 
 export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
-  [LeadStatus.NUEVO]: "Nuevo",
+  [LeadStatus.SIN_ASIGNAR]: "Sin asignar",
   [LeadStatus.CONTACTADO]: "Contactado",
   [LeadStatus.EN_SEGUIMIENTO]: "En seguimiento",
   [LeadStatus.MATRICULADO]: "Matriculado",

@@ -14,23 +14,29 @@ import Lead, {
 } from "../../../types/frontend/lead";
 import { useNotification } from "../../../context/NotificationContext";
 import LeadColumn from "./LeadColumn";
+import LeadCard from "./LeadCard";
 import DiscardReasonModal from "./DiscardReasonModal";
 import ConvertLeadModal from "../Modals/ConvertLeadModal";
 
 const PIPELINE_STATUSES = [
-  LeadStatus.NUEVO,
+  LeadStatus.SIN_ASIGNAR,
   LeadStatus.CONTACTADO,
   LeadStatus.EN_SEGUIMIENTO,
   LeadStatus.MATRICULADO,
   LeadStatus.DESCARTADO,
 ];
 
-export default function LeadsKanbanBoard() {
+interface LeadsKanbanBoardProps {
+  scope: "unassigned" | "assigned";
+}
+
+export default function LeadsKanbanBoard({ scope }: LeadsKanbanBoardProps) {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const { showNotification } = useNotification();
   const canFilterByBranchOrCommercial =
     user?.role === "ADMIN" || user?.role === "COMMERCIAL_PLUS";
+  const isUnassignedScope = scope === "unassigned";
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -78,9 +84,12 @@ export default function LeadsKanbanBoard() {
             branchId: canFilterByBranchOrCommercial
               ? branchFilter || undefined
               : undefined,
-            assignedToId: canFilterByBranchOrCommercial
-              ? assignedFilter || undefined
-              : undefined,
+            assignedToId:
+              canFilterByBranchOrCommercial && !isUnassignedScope
+                ? assignedFilter || undefined
+                : undefined,
+            unassigned: isUnassignedScope ? true : undefined,
+            assigned: isUnassignedScope ? undefined : true,
           },
         });
         setLeads(response.data.data);
@@ -93,7 +102,7 @@ export default function LeadsKanbanBoard() {
     };
 
     fetchLeads();
-  }, [branchFilter, assignedFilter, canFilterByBranchOrCommercial]);
+  }, [branchFilter, assignedFilter, canFilterByBranchOrCommercial, isUnassignedScope]);
 
   const updateLead = (updatedLead: Lead) => {
     setLeads((prev) =>
@@ -138,6 +147,16 @@ export default function LeadsKanbanBoard() {
     }
 
     changeStatus(lead, newStatus);
+  };
+
+  const handleAssign = async (leadId: string, assignedToId: string) => {
+    try {
+      await axiosInstance.patch(`/leads/${leadId}/assign`, { assignedToId });
+      setLeads((prev) => prev.filter((l) => l.id !== leadId));
+      showNotification("success", "Lead", "Asignado correctamente");
+    } catch {
+      showNotification("error", "Lead", "Error al asignar el lead");
+    }
   };
 
   const handleConfirmDiscard = (
@@ -189,36 +208,57 @@ export default function LeadsKanbanBoard() {
               className="dark:bg-dark-900 border border-gray-300 focus:border-brand-300 focus:ring-brand-500/20"
             />
           </div>
-          <div className="w-[200px]">
-            <Select
-              options={[
-                { value: "", label: "Todos los comerciales" },
-                ...commercials.map((c) => ({
-                  value: c.id,
-                  label: `${c.firstName} ${c.lastName}`,
-                })),
-              ]}
-              defaultValue=""
-              onChange={(value) => setAssignedFilter(value)}
-              placeholder="Asignado a"
-              className="dark:bg-dark-900 border border-gray-300 focus:border-brand-300 focus:ring-brand-500/20"
-            />
-          </div>
+          {!isUnassignedScope && (
+            <div className="w-[200px]">
+              <Select
+                options={[
+                  { value: "", label: "Todos los comerciales" },
+                  ...commercials.map((c) => ({
+                    value: c.id,
+                    label: `${c.firstName} ${c.lastName}`,
+                  })),
+                ]}
+                defaultValue=""
+                onChange={(value) => setAssignedFilter(value)}
+                placeholder="Asignado a"
+                className="dark:bg-dark-900 border border-gray-300 focus:border-brand-300 focus:ring-brand-500/20"
+              />
+            </div>
+          )}
         </div>
       )}
 
       <DndProvider backend={HTML5Backend}>
-        <div className="grid grid-cols-1 divide-x divide-gray-200 dark:divide-white/[0.05] sm:grid-cols-2 xl:grid-cols-5">
-          {PIPELINE_STATUSES.map((status) => (
-            <LeadColumn
-              key={status}
-              title={LEAD_STATUS_LABELS[status]}
-              status={status}
-              leads={leads.filter((lead) => lead.status === status)}
-              onDropLead={handleDropLead}
-            />
-          ))}
-        </div>
+        {isUnassignedScope ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 p-4 xl:p-6">
+            {leads.length === 0 ? (
+              <p className="col-span-full text-center text-sm text-gray-400 dark:text-gray-500 py-6">
+                No hay leads sin asignar
+              </p>
+            ) : (
+              leads.map((lead) => (
+                <LeadCard
+                  key={lead.id}
+                  lead={lead}
+                  commercials={commercials}
+                  onAssign={handleAssign}
+                />
+              ))
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 divide-x divide-gray-200 dark:divide-white/[0.05] sm:grid-cols-2 xl:grid-cols-5">
+            {PIPELINE_STATUSES.map((status) => (
+              <LeadColumn
+                key={status}
+                title={LEAD_STATUS_LABELS[status]}
+                status={status}
+                leads={leads.filter((lead) => lead.status === status)}
+                onDropLead={handleDropLead}
+              />
+            ))}
+          </div>
+        )}
       </DndProvider>
 
       <DiscardReasonModal

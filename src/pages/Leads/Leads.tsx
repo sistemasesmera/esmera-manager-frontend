@@ -1,13 +1,22 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import TableLeads from "../../components/leads/Tables/TableLeads";
 import LeadsKanbanBoard from "../../components/leads/kanban/LeadsKanbanBoard";
 
 type View = "list" | "kanban";
+export type LeadScope = "unassigned" | "assigned";
 
 export default function Leads() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const canAssign = user?.role === "ADMIN" || user?.role === "COMMERCIAL_PLUS";
+
   const [view, setView] = useState<View>("list");
+  const [scope, setScope] = useState<LeadScope>(
+    canAssign ? "unassigned" : "assigned"
+  );
 
   return (
     <div>
@@ -15,8 +24,33 @@ export default function Leads() {
         title="Leads - Esmera School"
         description="Gestión de leads en Esmera School."
       />
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <PageBreadcrumb pageTitle="Leads" />
+
+        {canAssign && (
+          <div className="flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-0.5">
+            <button
+              onClick={() => setScope("unassigned")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-150 ${
+                scope === "unassigned"
+                  ? "bg-rose-500 text-white"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              Sin asignar
+            </button>
+            <button
+              onClick={() => setScope("assigned")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-150 ${
+                scope === "assigned"
+                  ? "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              Asignados
+            </button>
+          </div>
+        )}
         <div className="flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-0.5">
           <button
             onClick={() => setView("list")}
@@ -53,7 +87,11 @@ export default function Leads() {
         </div>
       </div>
 
-      {view === "list" ? <TableLeads /> : <LeadsKanbanBoard />}
+      {view === "list" ? (
+        <TableLeads scope={scope} />
+      ) : (
+        <LeadsKanbanBoard scope={scope} />
+      )}
     </div>
   );
 }

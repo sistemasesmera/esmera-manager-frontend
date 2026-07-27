@@ -17,7 +17,7 @@ interface LeadStats {
 }
 
 const STATUS_CONFIG: Record<LeadStatus, { color: string; bg: string; dot: string }> = {
-  [LeadStatus.NUEVO]:           { color: "text-blue-600 dark:text-blue-400",   bg: "bg-blue-50 dark:bg-blue-900/20",   dot: "bg-blue-500" },
+  [LeadStatus.SIN_ASIGNAR]:           { color: "text-blue-600 dark:text-blue-400",   bg: "bg-blue-50 dark:bg-blue-900/20",   dot: "bg-blue-500" },
   [LeadStatus.CONTACTADO]:      { color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-900/20", dot: "bg-amber-500" },
   [LeadStatus.EN_SEGUIMIENTO]:  { color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-50 dark:bg-violet-900/20", dot: "bg-violet-500" },
   [LeadStatus.MATRICULADO]:     { color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-900/20", dot: "bg-emerald-500" },
@@ -32,7 +32,7 @@ const SOURCE_CONFIG: Record<LeadSource, { label: string; color: string; bg: stri
 };
 
 const STATUS_ORDER = [
-  LeadStatus.NUEVO,
+  LeadStatus.SIN_ASIGNAR,
   LeadStatus.CONTACTADO,
   LeadStatus.EN_SEGUIMIENTO,
   LeadStatus.MATRICULADO,
@@ -87,7 +87,7 @@ export default function LeadsConversionTab() {
   const total = stats?.total ?? 0;
   const matriculados = stats?.byStatus?.[LeadStatus.MATRICULADO] ?? 0;
   const enPipeline =
-    (stats?.byStatus?.[LeadStatus.NUEVO] ?? 0) +
+    (stats?.byStatus?.[LeadStatus.SIN_ASIGNAR] ?? 0) +
     (stats?.byStatus?.[LeadStatus.CONTACTADO] ?? 0) +
     (stats?.byStatus?.[LeadStatus.EN_SEGUIMIENTO] ?? 0);
   const tasaConversion = total > 0 ? ((matriculados / total) * 100).toFixed(1) : "0";

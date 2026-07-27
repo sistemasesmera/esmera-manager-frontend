@@ -14,7 +14,7 @@ interface LeadStats {
 }
 
 const STATUS_ORDER = [
-  LeadStatus.NUEVO,
+  LeadStatus.SIN_ASIGNAR,
   LeadStatus.CONTACTADO,
   LeadStatus.EN_SEGUIMIENTO,
   LeadStatus.MATRICULADO,
@@ -22,7 +22,7 @@ const STATUS_ORDER = [
 ];
 
 const STATUS_COLORS: Record<LeadStatus, string> = {
-  [LeadStatus.NUEVO]: "#3b82f6",
+  [LeadStatus.SIN_ASIGNAR]: "#3b82f6",
   [LeadStatus.CONTACTADO]: "#eab308",
   [LeadStatus.EN_SEGUIMIENTO]: "#a855f7",
   [LeadStatus.MATRICULADO]: "#22c55e",
