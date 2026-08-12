@@ -219,6 +219,434 @@ export function generateContractPDF(contractData: BackendContract) {
 
   // Añade una cuarta página en blanco
   pdf.addPage();
+  pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+  pdf.setDrawColor(0, 123, 255); // Color azul
+  pdf.setLineWidth(6);
+  pdf.line(lineStartX, lineY, lineEndX, lineY); // Coordenadas de la línea
+  pdf.setFontSize(14);
+  pdf.setTextColor(41, 105, 208); // Color del título en RGB
+  pdf.setFont("helvetica", "bold"); // Fuente en negrita
+  pdf.text(
+    "ACUERDO DE FINANCIACIÓN A TRAVÉS DE ESMERA SCHOOL REUNIDOS",
+    titleX,
+    titleY,
+    { align: "center" }
+  );
+
+  // Cambia a tamaño de fuente 8 para el contenido del acuerdo
+  pdf.setFont("helvetica", "normal"); // Fuente en negrita
+  pdf.setFontSize(8);
+  pdf.setTextColor(0, 0, 0); // Color negro
+
+  const agreementText = [
+    `De una parte, El alumno ${contractData.alumn.firstName.toLocaleUpperCase()} ${contractData.alumn.lastName.toLocaleUpperCase()}, actuando en su propio nombre y representación, cuyos datos`,
+    "identificativos figuran en el apartado DATOS DEL ALUMNO del contrato de prestación de servicios del que este acuerdo es ANEXO I (en",
+    "adelante, “el alumno”);",
+    "De otra parte, EL AVALISTA: (Cuando proceda) actuando en su propio nombre y representación, cuyos datos identificativos figuran en el",
+    "apartado de DATOS DEL AVALISTA del contrato de prestación de servicios del que este acuerdo es ANEXO I, (en adelante, “el avalista”) Y,",
+    "de otra parte, Bertha Taborda Tascon, provista de DNI 54329748T, actuando en nombre y representación de ESMERA SCHOOL S.L., cuyos",
+    "datos identificativos figuran también en el citado contrato de prestación de servicios (en adelante “ESMERA SCHOOL”).",
+    "Todas las partes intervinientes aseguran tener capacidad legal y facultades bastantes para suscribir el presente ACUERDO DE",
+    "FINANCIACIÓN, y se reconocen mutuamente en las respectivas calidades en que actúan, a cuyo efecto.",
+    "",
+    "MANIFIESTAN",
+    "",
+    "I.- Que, a la fecha de firma de este acuerdo, el alumno se ha matriculado en el centro de estudios ESMERA SCHOOL para proceder a su",
+    "formación en las condiciones y términos previstos en el contrato de prestación de servicios del que este acuerdo es Anexo I.",
+    "II.- Que el precio del servicio contratado es el que figura en el apartado de IMPORTE TOTAL DEL CURSO del citado contrato de prestación de",
+    "servicios. Dentro de las modalidades de pago previstas en el contrato, el alumno y el avalista han optado por realizar un pago inicial,",
+    "quedando aplazado el pago del resto del importe, optando por la financiación a través del propio centro de estudios ESMERA SCHOOL.",
+    "III.- Que, como consecuencia de lo manifestado hasta ahora, el alumno y el avalista reconocen adeudar a ESMERA SCHOOL el importe",
+    "aplazado en el contrato de servicios y que asciende a la cantidad de ______. El pago de esta cantidad se realizará en los términos",
+    "previstos en el apartado de MODALIDADES DE PAGO del citado contrato de prestación de servicios y que a continuación se reproducen:",
+    "",
+    "FINANCIADO A TRAVÉS DE ESMERA SCHOOL",
+    "Pago Inicial____________ Monto a Financiar________________________",
+    "En_____ cuotas semanales consecutivas de_____________ € cada una",
+    "En_____ cuotas quincenales consecutivas de_____________ € cada una.",
+    "En_____ cuotas mensuales consecutivas de_____________ € cada una.",
+    "1 Fecha del primer abono o vencimiento: Importe",
+    "2 Número total del resto de cuotas: Fecha de la última cuota:",
+    "",
+    "IV.- Por este motivo las partes suscriben el presente ACUERDO DE FINANCIACIÓN que se regirá por las siguientes,",
+    "ESTIPULACIONES",
+    "Primera. -Financiación concedida. -ESMERA SCHOOL concede al alumno y al avalista la financiación del importe señalado en la",
+    "manifestación Núm. III de este acuerdo. A su vez, el alumno y el avalista reconocen a ESMERA SCHOOL esta cantidad y se comprometen a",
+    "devolver dicha financiación en los vencimientos previstos en el cuadro de amortización, siendo responsabilidad exclusiva de ellos atender al",
+    "pago puntualmente.",
+    "",
+    "Segunda. -Devolución del capital financiado. -La devolución del capital financiado se realizará mediante el pago de las cuotas establecidas",
+    "en la manifestación Núm. III de este acuerdo, cuyo adeudo se efectuará en la siguiente cuenta bancaria señalada al efecto en el",
+    "mencionado contrato.",
+  ];
+
+  const startY = titleY + 20; // Ajustar la posición inicial para el texto
+  agreementText.forEach((line, index) => {
+    pdf.text(line, 10, startY + index * 5); // Usar la nueva posición con menor espaciado
+  });
+
+  // Añade la imagen del footer a la quinta página
+  pdf.addImage(
+    selectedFooter,
+    "PNG",
+    footerX,
+    footerY,
+    footerImageWidth,
+    footerImageHeight
+  );
+
+  // Añade la sexta página con el encabezado y pie de página
+  pdf.addPage();
+  pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+  pdf.setDrawColor(0, 123, 255); // Color azul
+  pdf.setLineWidth(6);
+  pdf.line(lineStartX, lineY, lineEndX, lineY); // Coordenadas de la línea
+
+  // Cambia a tamaño de fuente 8 para el contenido del acuerdo
+  pdf.setFontSize(8);
+  pdf.setTextColor(0, 0, 0); // Color negro
+
+  const continuationText = [
+    "El alumno y/o el avalista podrán satisfarán anticipadamente la totalidad o parte de la financiación pendiente de devolución sin coste",
+    "alguno, pudiendo optar entre destinar el importe de la devolución anticipada a la reducción del plazo o la reducción.",
+    "Del importe de las cuotas periódicas. ESMERA SCHOOL, pone a disposición del cliente un cuadro de amortización que indicará los pagos",
+    "adecuados, así como los periodos y las condiciones de pago de tales importes. En caso de presentación al cobro del recibo correspondiente ",
+    "y éste resultara devuelto, ESMERA SCHOOL procederá de nuevo a su presentación en el plazo de 15 días naturales desde la fecha en que se",
+    "produzca su devolución. En caso de que el cliente no atienda al pago de tres o más cuotas entrarán en vigor las previsiones contenidas",
+    "en el apartado siguiente.",
+    "",
+    "Tercera. -Resolución del contrato y vencimiento anticipado. - ESMERA SCHOOL podrá en cualquier momento dar por vencido el acuerdo de",
+    "financiación y exigir la inmediata devolución del capital financiado por incumplimiento de cualquiera de las obligaciones contraídas en virtud",
+    " de este acuerdo y en especial por el impago de tres o más cuotas establecidas en el contrato de prestación de servicios, cargando al capital",
+    "principal pendiente de pago los importes correspondientes por gastos e intereses.",
+    "De esta manera, la falta de pago, total o parcial, de las cuotas anteriores mencionadas supondrá automáticamente la resolución del presente",
+    "contrato de financiación y el vencimiento anticipado de las cantidades pendientes de pago, sin necesidad de preaviso al alumno y/o a ",
+    "su avalista. En estos supuestos se establece, en concepto de indemnización por daños y perjuicios, el devengo del interés legal del dinero ",
+    "vigente desde la fecha en que se produzca la resolución de este contrato y el vencimiento anticipado de la deuda hasta su efectivo pago,",
+    " bien por el alumno, bien por el avalista. Este tipo de interés es fijado anualmente en la LEY GENERAL DE PRESUPUESTOS DEL ESTADO.",
+    "Asimismo, faculta a ESMERA SCHOOL para reclamar al alumno o al avalista, de modo solidario, con una renuncia expresa de este último ",
+    "al derecho de orden, exclusión y división, por vía judicial la totalidad de la deuda pendiente que las partes consideran ",
+    "totalmente vencida, líquida y exigible a todos los efectos.",
+    "",
+    "Cuarta. -Notificaciones. -A efectos de notificaciones el alumno y el avalista fijan como domicilio el señalado en el contrato de prestación ",
+    "de servicios. En caso de modificación, tanto el alumno como el avalista deberán comunicarlo fehacientemente a ESMERA SCHOOL,",
+    "por lo que será válida y suficiente la notificación realizada en el último domicilio conocido por ESMERA SCHOOL.",
+    "Asimismo, ESMERA SCHOOL establece como domicilio de notificaciones el siguiente:",
+    `Esmera SCHOOL ${
+      contractData.branch.address ? contractData.branch.address : ","
+    } Mail: ${contactEmail}",
+    "`,
+    "Quinta. Con la firma del presente documento el contrato queda en firme no habiendo lugar a desestimación.",
+    "En caso de que el Cliente incurra en impago de la deuda adquirida mediante el presente acuerdo de financiación, la empresa prestadora del ",
+    "servicio realizará las notificaciones correspondientes para informar al Cliente de la situación de morosidad. Si, tras dichas notificaciones, el Cliente",
+    "no regulariza el pago pendiente, la empresa se reserva el derecho de registrar sus datos personales en el fichero ASNEF (Asociación Nacional de ",
+    "Establecimientos Financieros de Crédito). Esta inclusión en el ASNEF podría afectar el historial crediticio del Cliente, limitando el acceso a futuras ",
+    "financiaciones con otras entidades que consulten este fichero. El Cliente acepta las implicaciones de esta medida en caso de incumplimiento.",
+    "Los gastos administrativos y de matrícula (150€) no están sujetos a devolución al no formar parte del curso contratado. En los supuestos",
+    "que por fuerza mayor se de por anulado el presente contrato, El presente anexo queda incluido de forma indisoluble al contrato de ",
+    "prestación de servicios al que se hace referencia.",
+    "Y, para que así conste a los efectos legales oportunos, las partes se someten a los tribunales de Madrid y se firma el presente documento, por",
+    "duplicado y en prueba de conformidad, una vez leído y quedado conforme, todos cuantos en el mismo intervienen.",
+  ];
+
+  const startYContinuation = titleY + 20; // Ajustar la posición inicial para el texto
+  continuationText.forEach((line, index) => {
+    pdf.text(line, 10, startYContinuation + index * 4.5); // Usar la nueva posición con menor espaciado
+  });
+
+  // Ajustar el tamaño de fuente para "Madrid 23/09/2024" y las firmas
+  pdf.setFontSize(10);
+  const startY6 = startYContinuation + continuationText.length * 4.6; // Acercar a texto anterior
+
+  pdf.text(`${cityName}, ${contractData.contractDate}`, 10, startY6);
+  pdf.text("_____________________", 21, startY6 + 8);
+
+  // Coordenadas para las firmas
+  const firmaAlumnoX = 10;
+  const firmaY = startY6 + 13; // Alejar de las firmas
+
+  // Escribir las firmas
+  pdf.text("    FIRMA DEL ALUMNO O AVALISTA  ", firmaAlumnoX, firmaY);
+
+  pdf.addImage(
+    selectedFooter,
+    "PNG",
+    footerX,
+    footerY,
+    footerImageWidth,
+    footerImageHeight
+  );
+
+  // Reglamento interno y normas académicas
+  pdf.addPage();
+  pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+  pdf.setDrawColor(0, 123, 255);
+  pdf.setLineWidth(6);
+  pdf.line(lineStartX, lineY, lineEndX, lineY);
+
+  // Título principal
+  pdf.setFontSize(13);
+  pdf.setTextColor(41, 105, 208);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("REGLAMENTO INTERNO Y NORMAS ACADÉMICAS", titleX, titleY, { align: "center" });
+
+  // Subtítulo
+  pdf.setFontSize(9);
+  pdf.text("ESMERA SCHOOL, S.L.", titleX, titleY + 6, { align: "center" });
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7);
+  pdf.setTextColor(0, 0, 0);
+
+  const reglamentoSections = [
+    {
+      title: "CARÁCTER DEL REGLAMENTO",
+      rules: [
+        "El presente Reglamento Interno regula la organización, funcionamiento, convivencia y desarrollo académico del centro.",
+        "Su aceptación es inherente a la formalización de la matrícula, siendo de obligado cumplimiento para todo el alumnado.",
+        "El incumplimiento de cualquiera de sus normas podrá dar lugar a medidas disciplinarias, incluida la expulsión del alumno, en función de la gravedad de los hechos.",
+      ],
+    },
+    {
+      title: "1. ORGANIZACIÓN DEL CENTRO",
+      rules: [
+        "1. La Academia podrá realizar ajustes organizativos en grupos, horarios, profesorado y planificación académica cuando lo requiera el correcto funcionamiento del centro.",
+        "2. El desarrollo de la formación se ajustará en todo momento a la organización interna establecida por la Academia.",
+      ],
+    },
+    {
+      title: "2. HORARIO, ASISTENCIA Y PUNTUALIDAD",
+      rules: [
+        "3. El turno asignado al alumno es el establecido por la Academia.",
+        "4. Se establece un margen máximo de retraso de diez (10) minutos. Superado dicho tiempo, el acceso a clase será denegado, salvo que el alumno aporte justificante oficial que acredite el motivo del retraso.",
+        "5. El acceso tardío o la no incorporación a clase no dará derecho a recuperación automática de la sesión.",
+        "6. Las clases perdidas por absentismo no justificado se considerarán impartidas a todos los efectos.",
+        "7. El alumnado deberá respetar el normal desarrollo de la clase, evitando interrupciones o conductas que alteren el ritmo académico.",
+      ],
+    },
+    {
+      title: "3. NORMAS DE CONVIVENCIA E INSTALACIONES",
+      rules: [
+        "8. Está prohibido fumar, comer o utilizar dispositivos móviles durante las clases.",
+        "9. El acceso a las clases prácticas requiere el uso obligatorio del uniforme oficial de la Academia, compuesto por camisa o chaquetilla de la Academia, pantalón negro y calzado profesional ergonómico. En caso de no disponer del uniforme, el alumno podrá alquilarlo en recepción, sujeto a disponibilidad.",
+        "10. El alumno será responsable del uso adecuado de las instalaciones, maquinaria, materiales y recursos de la Academia.",
+        "11. Responderá de los daños ocasionados por uso negligente o indebido, asumiendo los costes de reparación o reposición.",
+        "12. El alumno deberá mantener las instalaciones y zonas de trabajo en correcto estado de orden y limpieza tras cada sesión.",
+        "13. El acceso a las instalaciones mediante sistema de control (torno) requiere carnet personal, intransferible y de uso exclusivo. Queda prohibido su préstamo o cesión a terceros.",
+      ],
+    },
+    {
+      title: "4. MATERIAL, EQUIPOS Y PRÁCTICAS",
+      rules: [
+        "14. El alumno deberá utilizar correctamente los materiales, herramientas y equipos del centro.",
+        "15. Los materiales o dispositivos procedentes de entidades externas serán responsabilidad exclusiva del alumno, no asumiendo la Academia reposición ni garantía.",
+        "16. El alumno deberá aportar los modelos necesarios para el desarrollo de las prácticas formativas.",
+        "17. El desarrollo de las prácticas estará sujeto a la organización interna y disponibilidad del centro.",
+        "18. El importe simbólico abonado por los modelos en concepto de colaboración será destinado íntegramente a la asociación externa e independiente \"El Privilegio\".",
+      ],
+    },
+    {
+      title: "5. KIT DE PRÁCTICAS Y MATERIAL FORMATIVO",
+      rules: [
+        "19. A través de la asociación externa e independiente \"El Privilegio\", se podrá entregar a los alumnos un kit de prácticas como material de apoyo formativo.",
+        "20. Este kit tiene carácter voluntario y, en caso de no desearlo, podrá ser devuelto para su gestión por la propia asociación.",
+        "21. El alumno deberá disponer y adquirir el material adicional necesario para el correcto desarrollo de su formación, conforme a las indicaciones del profesorado, quien informará en cada momento de los materiales requeridos.",
+      ],
+    },
+    {
+      title: "6. ASISTENCIA Y EVALUACIÓN ACADÉMICA",
+      rules: [],
+    },
+    {
+      title: "CRITERIOS GENERALES",
+      rules: [
+        "22. La evaluación del alumno será continua, atendiendo a aprovechamiento, evolución práctica, participación, asistencia, competencias adquiridas y cumplimiento de objetivos formativos.",
+      ],
+    },
+    {
+      title: "EXÁMENES Y CALIFICACIÓN",
+      rules: [
+        "23. Los exámenes teóricos y prácticos se realizarán en los últimos 2-3 días lectivos de cada módulo.",
+        "24. Ambos exámenes deberán aprobarse de forma independiente con una calificación mínima de cinco (5).",
+        "25. El alumno deberá realizar un mínimo de cinco (5) prácticas con clientes por módulo.",
+        "26. La calificación final será: 30% examen práctico, 30% examen teórico, 40% prácticas con clientes.",
+        "27. Para obtener el título, el alumno deberá superar todos los módulos.",
+        "28. El trabajo final de curso será obligatorio para la obtención del diploma.",
+      ],
+    },
+    {
+      title: "FALTAS DE ASISTENCIA",
+      rules: [
+        "29. El alumnado que supere el 25% de faltas de asistencia injustificadas en un módulo perderá el derecho a la evaluación del mismo, considerándose dicho módulo como no superado, siempre que las faltas no estén debidamente justificadas conforme a la normativa interna del centro.",
+        "30. En estos casos, el alumno deberá volver a matricularse en el módulo correspondiente y abonar nuevamente el importe establecido.",
+      ],
+    },
+    {
+      title: "CAMBIO DE TURNO",
+      rules: [
+        "31. El cambio de turno por parte del alumnado estará sujeto a disponibilidad de plazas y a la organización interna del centro.",
+        "32. En caso de ser autorizado, el cambio de turno conllevará el abono de una tasa administrativa de 150 €, en concepto de gestión y tramitación del expediente.",
+        "33. El cambio de turno no será efectivo hasta que se haya realizado el pago correspondiente y haya sido confirmada su aprobación por la dirección del centro.",
+      ],
+    },
+    {
+      title: "ALUMNOS INTERNACIONALES",
+      rules: [
+        "34. Los alumnos internacionales deberán cumplir la normativa general de evaluación del centro.",
+        "35. Deberán realizar exámenes de OMAT en los últimos 2-3 días de cada módulo.",
+        "36. La calificación mínima de OMAT será del 70%.",
+        "37. Deberán entregar los portfolios (libros de anillas OMAT) antes de finalizar el último módulo.",
+        "38. La falta de entrega impedirá la finalización del programa formativo.",
+      ],
+    },
+    {
+      title: "7. INTERRUPCIÓN DE LA FORMACIÓN, BAJA TEMPORAL Y REANUDACIÓN",
+      rules: [
+        `39. En caso de interrupción de la formación por motivos laborales, personales, familiares o de cualquier otra índole, deberá comunicarse a ${contactEmail}, registrándose como baja temporal.`,
+        "40. La baja temporal no suspenderá las obligaciones económicas del contrato ni en fechas ni en importe total del curso.",
+        "41. El alumno podrá solicitar la reanudación de la formación en un plazo máximo de 12 meses, contado desde la fecha de su matriculación, sujeto a disponibilidad de plazas, actualización del programa formativo y condiciones vigentes.",
+        "42. Transcurrido dicho plazo sin reincorporación, el contrato se considerará extinguido, debiendo formalizar nueva matrícula para continuar la formación, reconociéndose únicamente los módulos superados.",
+      ],
+    },
+    {
+      title: "8. CERTIFICACIONES INTERNACIONALES",
+      rules: [
+        "43. Una vez finalizada la formación, y siempre que el alumno haya superado satisfactoriamente todas las evaluaciones requeridas y abonado la totalidad del curso, la Academia procederá a la remisión del expediente académico a OMAT, entidad encargada de la tramitación ante el organismo certificador correspondiente en el Reino Unido.",
+        "44. El alumno reconoce que la Academia no emite certificados internacionales, actuando únicamente como intermediaria.",
+        "45. Los plazos de expedición dependen exclusivamente del organismo certificador, pudiendo oscilar entre seis (6) y doce (12) meses, sin responsabilidad para la Academia.",
+      ],
+    },
+    {
+      title: "9. COMUNICACIÓN Y CANALES OFICIALES",
+      rules: [
+        `46. Inasistencias e incidencias: ${contactEmail}`,
+        "47. Incidencias financieras SEQURA: 931760008.",
+        "48. Toda comunicación deberá realizarse por canales oficiales, no siendo válidas vías informales o personal no autorizado.",
+      ],
+    },
+    {
+      title: "10. CONVIVENCIA Y CONDUCTA",
+      rules: [
+        "49. El alumno deberá mantener en todo momento un comportamiento adecuado, respetuoso y acorde a la normativa del centro.",
+        "50. El incumplimiento de las normas de convivencia podrá dar lugar a medidas disciplinarias.",
+      ],
+    },
+    {
+      title: "11. NATURALEZA DEL SERVICIO",
+      rules: [
+        "51. La formación impartida tiene carácter académico y profesional, orientada a la mejora de la empleabilidad, sin que constituya garantía de obtención de empleo, prácticas o resultados concretos.",
+      ],
+    },
+    {
+      title: "12. NATURALEZA DEL REGLAMENTO",
+      rules: [
+        "52. El presente Reglamento tiene carácter interno y organizativo, siendo de obligado cumplimiento para todo el alumnado, con el fin de garantizar el correcto funcionamiento del centro y el adecuado desarrollo de la formación.",
+      ],
+    },
+  ];
+
+  let reglamentoY = titleY + 16;
+  const REGLAMENTO_HEADER_Y = titleY + 10;
+
+  reglamentoSections.forEach((section) => {
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(41, 105, 208);
+
+    if (reglamentoY > 260) {
+      pdf.addPage();
+      pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+      pdf.setDrawColor(0, 123, 255);
+      pdf.setLineWidth(6);
+      pdf.line(lineStartX, lineY, lineEndX, lineY);
+      reglamentoY = REGLAMENTO_HEADER_Y;
+    }
+
+    pdf.text(section.title, 10, reglamentoY);
+    reglamentoY += 4;
+
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(7);
+
+    section.rules.forEach((rule) => {
+      const ruleLines = pdf.splitTextToSize(rule, 190);
+      ruleLines.forEach((line: string) => {
+        if (reglamentoY > 270) {
+          pdf.addPage();
+          pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
+          pdf.setDrawColor(0, 123, 255);
+          pdf.setLineWidth(6);
+          pdf.line(lineStartX, lineY, lineEndX, lineY);
+          reglamentoY = REGLAMENTO_HEADER_Y;
+        }
+        pdf.text(line, 10, reglamentoY);
+        reglamentoY += 2.8;
+      });
+      reglamentoY += 1;
+    });
+
+    reglamentoY += 1.5;
+  });
+
+
+  // Añade la imagen del footer a la nueva página
+  pdf.addImage(
+    selectedFooter,
+    "PNG",
+    footerX,
+    footerY,
+    footerImageWidth,
+    footerImageHeight
+  );
+
+
+
+  // Restablece la fuente a normal para el resto del texto
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8);
+  pdf.setTextColor(0, 0, 0); // Restablecer color del texto a negro
+
+  // Ajustar la posición inicial para las normas
+  const startYRegulations8 = titleY + 20; // Empezar 20 unidades debajo del título
+  let currentY8 = startYRegulations8; // Posición actual en Y
+
+  // Añadir el texto "Leído y aceptado" con espacio
+  currentY8 += 160; // Espacio antes de "Leído y aceptado"
+  pdf.setFont("helvetica", "bold"); // Fuente en negrita
+  pdf.setFontSize(12); //
+  pdf.text("Leído y aceptado", 10, currentY8);
+  currentY8 += 4; // Espacio después de "Leído y aceptado"
+
+  // Añadir las líneas para las firmas
+  pdf.setFont("helvetica", "normal"); // Restablecer a normal
+  currentY8 += 10; // Espacio antes de las líneas de firma
+
+  // Línea 1: Firmado Sr/Sra: XXXX XXXX XXXX XXXX
+  pdf.text(
+    `Firmado Sr/Sra: ${contractData.alumn.firstName.toUpperCase()} ${contractData.alumn.lastName.toUpperCase()}`,
+    10,
+    currentY8
+  );
+  currentY8 += 10; // Espacio después de la primera línea
+
+  // Línea 2:
+  pdf.text(
+    `${contractData.alumn.documentType}: ${contractData.alumn.documentNumber}`,
+    10,
+    currentY8
+  );
+
+  // Añade la imagen del footer a la nueva página
+  pdf.addImage(
+    selectedFooter,
+    "PNG",
+    footerX,
+    footerY,
+    footerImageWidth,
+    footerImageHeight
+  );
+  pdf.addPage();
 
   // Añadir una nueva página para el contrato
   // Añadir una nueva página para el contrato
@@ -653,434 +1081,6 @@ export function generateContractPDF(contractData: BackendContract) {
   );
 
   // Añade la quinta página con el encabezado y pie de página
-  pdf.addPage();
-  pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
-  pdf.setDrawColor(0, 123, 255); // Color azul
-  pdf.setLineWidth(6);
-  pdf.line(lineStartX, lineY, lineEndX, lineY); // Coordenadas de la línea
-  pdf.setFontSize(14);
-  pdf.setTextColor(41, 105, 208); // Color del título en RGB
-  pdf.setFont("helvetica", "bold"); // Fuente en negrita
-  pdf.text(
-    "ACUERDO DE FINANCIACIÓN A TRAVÉS DE ESMERA SCHOOL REUNIDOS",
-    titleX,
-    titleY,
-    { align: "center" }
-  );
-
-  // Cambia a tamaño de fuente 8 para el contenido del acuerdo
-  pdf.setFont("helvetica", "normal"); // Fuente en negrita
-  pdf.setFontSize(8);
-  pdf.setTextColor(0, 0, 0); // Color negro
-
-  const agreementText = [
-    `De una parte, El alumno ${contractData.alumn.firstName.toLocaleUpperCase()} ${contractData.alumn.lastName.toLocaleUpperCase()}, actuando en su propio nombre y representación, cuyos datos`,
-    "identificativos figuran en el apartado DATOS DEL ALUMNO del contrato de prestación de servicios del que este acuerdo es ANEXO I (en",
-    "adelante, “el alumno”);",
-    "De otra parte, EL AVALISTA: (Cuando proceda) actuando en su propio nombre y representación, cuyos datos identificativos figuran en el",
-    "apartado de DATOS DEL AVALISTA del contrato de prestación de servicios del que este acuerdo es ANEXO I, (en adelante, “el avalista”) Y,",
-    "de otra parte, Bertha Taborda Tascon, provista de DNI 54329748T, actuando en nombre y representación de ESMERA SCHOOL S.L., cuyos",
-    "datos identificativos figuran también en el citado contrato de prestación de servicios (en adelante “ESMERA SCHOOL”).",
-    "Todas las partes intervinientes aseguran tener capacidad legal y facultades bastantes para suscribir el presente ACUERDO DE",
-    "FINANCIACIÓN, y se reconocen mutuamente en las respectivas calidades en que actúan, a cuyo efecto.",
-    "",
-    "MANIFIESTAN",
-    "",
-    "I.- Que, a la fecha de firma de este acuerdo, el alumno se ha matriculado en el centro de estudios ESMERA SCHOOL para proceder a su",
-    "formación en las condiciones y términos previstos en el contrato de prestación de servicios del que este acuerdo es Anexo I.",
-    "II.- Que el precio del servicio contratado es el que figura en el apartado de IMPORTE TOTAL DEL CURSO del citado contrato de prestación de",
-    "servicios. Dentro de las modalidades de pago previstas en el contrato, el alumno y el avalista han optado por realizar un pago inicial,",
-    "quedando aplazado el pago del resto del importe, optando por la financiación a través del propio centro de estudios ESMERA SCHOOL.",
-    "III.- Que, como consecuencia de lo manifestado hasta ahora, el alumno y el avalista reconocen adeudar a ESMERA SCHOOL el importe",
-    "aplazado en el contrato de servicios y que asciende a la cantidad de ______. El pago de esta cantidad se realizará en los términos",
-    "previstos en el apartado de MODALIDADES DE PAGO del citado contrato de prestación de servicios y que a continuación se reproducen:",
-    "",
-    "FINANCIADO A TRAVÉS DE ESMERA SCHOOL",
-    "Pago Inicial____________ Monto a Financiar________________________",
-    "En_____ cuotas semanales consecutivas de_____________ € cada una",
-    "En_____ cuotas quincenales consecutivas de_____________ € cada una.",
-    "En_____ cuotas mensuales consecutivas de_____________ € cada una.",
-    "1 Fecha del primer abono o vencimiento: Importe",
-    "2 Número total del resto de cuotas: Fecha de la última cuota:",
-    "",
-    "IV.- Por este motivo las partes suscriben el presente ACUERDO DE FINANCIACIÓN que se regirá por las siguientes,",
-    "ESTIPULACIONES",
-    "Primera. -Financiación concedida. -ESMERA SCHOOL concede al alumno y al avalista la financiación del importe señalado en la",
-    "manifestación Núm. III de este acuerdo. A su vez, el alumno y el avalista reconocen a ESMERA SCHOOL esta cantidad y se comprometen a",
-    "devolver dicha financiación en los vencimientos previstos en el cuadro de amortización, siendo responsabilidad exclusiva de ellos atender al",
-    "pago puntualmente.",
-    "",
-    "Segunda. -Devolución del capital financiado. -La devolución del capital financiado se realizará mediante el pago de las cuotas establecidas",
-    "en la manifestación Núm. III de este acuerdo, cuyo adeudo se efectuará en la siguiente cuenta bancaria señalada al efecto en el",
-    "mencionado contrato.",
-  ];
-
-  const startY = titleY + 20; // Ajustar la posición inicial para el texto
-  agreementText.forEach((line, index) => {
-    pdf.text(line, 10, startY + index * 5); // Usar la nueva posición con menor espaciado
-  });
-
-  // Añade la imagen del footer a la quinta página
-  pdf.addImage(
-    selectedFooter,
-    "PNG",
-    footerX,
-    footerY,
-    footerImageWidth,
-    footerImageHeight
-  );
-
-  // Añade la sexta página con el encabezado y pie de página
-  pdf.addPage();
-  pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
-  pdf.setDrawColor(0, 123, 255); // Color azul
-  pdf.setLineWidth(6);
-  pdf.line(lineStartX, lineY, lineEndX, lineY); // Coordenadas de la línea
-
-  // Cambia a tamaño de fuente 8 para el contenido del acuerdo
-  pdf.setFontSize(8);
-  pdf.setTextColor(0, 0, 0); // Color negro
-
-  const continuationText = [
-    "El alumno y/o el avalista podrán satisfarán anticipadamente la totalidad o parte de la financiación pendiente de devolución sin coste",
-    "alguno, pudiendo optar entre destinar el importe de la devolución anticipada a la reducción del plazo o la reducción.",
-    "Del importe de las cuotas periódicas. ESMERA SCHOOL, pone a disposición del cliente un cuadro de amortización que indicará los pagos",
-    "adecuados, así como los periodos y las condiciones de pago de tales importes. En caso de presentación al cobro del recibo correspondiente ",
-    "y éste resultara devuelto, ESMERA SCHOOL procederá de nuevo a su presentación en el plazo de 15 días naturales desde la fecha en que se",
-    "produzca su devolución. En caso de que el cliente no atienda al pago de tres o más cuotas entrarán en vigor las previsiones contenidas",
-    "en el apartado siguiente.",
-    "",
-    "Tercera. -Resolución del contrato y vencimiento anticipado. - ESMERA SCHOOL podrá en cualquier momento dar por vencido el acuerdo de",
-    "financiación y exigir la inmediata devolución del capital financiado por incumplimiento de cualquiera de las obligaciones contraídas en virtud",
-    " de este acuerdo y en especial por el impago de tres o más cuotas establecidas en el contrato de prestación de servicios, cargando al capital",
-    "principal pendiente de pago los importes correspondientes por gastos e intereses.",
-    "De esta manera, la falta de pago, total o parcial, de las cuotas anteriores mencionadas supondrá automáticamente la resolución del presente",
-    "contrato de financiación y el vencimiento anticipado de las cantidades pendientes de pago, sin necesidad de preaviso al alumno y/o a ",
-    "su avalista. En estos supuestos se establece, en concepto de indemnización por daños y perjuicios, el devengo del interés legal del dinero ",
-    "vigente desde la fecha en que se produzca la resolución de este contrato y el vencimiento anticipado de la deuda hasta su efectivo pago,",
-    " bien por el alumno, bien por el avalista. Este tipo de interés es fijado anualmente en la LEY GENERAL DE PRESUPUESTOS DEL ESTADO.",
-    "Asimismo, faculta a ESMERA SCHOOL para reclamar al alumno o al avalista, de modo solidario, con una renuncia expresa de este último ",
-    "al derecho de orden, exclusión y división, por vía judicial la totalidad de la deuda pendiente que las partes consideran ",
-    "totalmente vencida, líquida y exigible a todos los efectos.",
-    "",
-    "Cuarta. -Notificaciones. -A efectos de notificaciones el alumno y el avalista fijan como domicilio el señalado en el contrato de prestación ",
-    "de servicios. En caso de modificación, tanto el alumno como el avalista deberán comunicarlo fehacientemente a ESMERA SCHOOL,",
-    "por lo que será válida y suficiente la notificación realizada en el último domicilio conocido por ESMERA SCHOOL.",
-    "Asimismo, ESMERA SCHOOL establece como domicilio de notificaciones el siguiente:",
-    `Esmera SCHOOL ${
-      contractData.branch.address ? contractData.branch.address : ","
-    } Mail: ${contactEmail}",
-    "`,
-    "Quinta. Con la firma del presente documento el contrato queda en firme no habiendo lugar a desestimación.",
-    "En caso de que el Cliente incurra en impago de la deuda adquirida mediante el presente acuerdo de financiación, la empresa prestadora del ",
-    "servicio realizará las notificaciones correspondientes para informar al Cliente de la situación de morosidad. Si, tras dichas notificaciones, el Cliente",
-    "no regulariza el pago pendiente, la empresa se reserva el derecho de registrar sus datos personales en el fichero ASNEF (Asociación Nacional de ",
-    "Establecimientos Financieros de Crédito). Esta inclusión en el ASNEF podría afectar el historial crediticio del Cliente, limitando el acceso a futuras ",
-    "financiaciones con otras entidades que consulten este fichero. El Cliente acepta las implicaciones de esta medida en caso de incumplimiento.",
-    "Los gastos administrativos y de matrícula (150€) no están sujetos a devolución al no formar parte del curso contratado. En los supuestos",
-    "que por fuerza mayor se de por anulado el presente contrato, El presente anexo queda incluido de forma indisoluble al contrato de ",
-    "prestación de servicios al que se hace referencia.",
-    "Y, para que así conste a los efectos legales oportunos, las partes se someten a los tribunales de Madrid y se firma el presente documento, por",
-    "duplicado y en prueba de conformidad, una vez leído y quedado conforme, todos cuantos en el mismo intervienen.",
-  ];
-
-  const startYContinuation = titleY + 20; // Ajustar la posición inicial para el texto
-  continuationText.forEach((line, index) => {
-    pdf.text(line, 10, startYContinuation + index * 4.5); // Usar la nueva posición con menor espaciado
-  });
-
-  // Ajustar el tamaño de fuente para "Madrid 23/09/2024" y las firmas
-  pdf.setFontSize(10);
-  const startY6 = startYContinuation + continuationText.length * 4.6; // Acercar a texto anterior
-
-  pdf.text(`${cityName}, ${contractData.contractDate}`, 10, startY6);
-  pdf.text("_____________________", 21, startY6 + 8);
-
-  // Coordenadas para las firmas
-  const firmaAlumnoX = 10;
-  const firmaY = startY6 + 13; // Alejar de las firmas
-
-  // Escribir las firmas
-  pdf.text("    FIRMA DEL ALUMNO O AVALISTA  ", firmaAlumnoX, firmaY);
-
-  pdf.addImage(
-    selectedFooter,
-    "PNG",
-    footerX,
-    footerY,
-    footerImageWidth,
-    footerImageHeight
-  );
-
-  // Reglamento interno y normas académicas
-  pdf.addPage();
-  pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
-  pdf.setDrawColor(0, 123, 255);
-  pdf.setLineWidth(6);
-  pdf.line(lineStartX, lineY, lineEndX, lineY);
-
-  // Título principal
-  pdf.setFontSize(13);
-  pdf.setTextColor(41, 105, 208);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("REGLAMENTO INTERNO Y NORMAS ACADÉMICAS", titleX, titleY, { align: "center" });
-
-  // Subtítulo
-  pdf.setFontSize(9);
-  pdf.text("ESMERA SCHOOL, S.L.", titleX, titleY + 6, { align: "center" });
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(7);
-  pdf.setTextColor(0, 0, 0);
-
-  const reglamentoSections = [
-    {
-      title: "CARÁCTER DEL REGLAMENTO",
-      rules: [
-        "El presente Reglamento Interno regula la organización, funcionamiento, convivencia y desarrollo académico del centro.",
-        "Su aceptación es inherente a la formalización de la matrícula, siendo de obligado cumplimiento para todo el alumnado.",
-        "El incumplimiento de cualquiera de sus normas podrá dar lugar a medidas disciplinarias, incluida la expulsión del alumno, en función de la gravedad de los hechos.",
-      ],
-    },
-    {
-      title: "1. ORGANIZACIÓN DEL CENTRO",
-      rules: [
-        "1. La Academia podrá realizar ajustes organizativos en grupos, horarios, profesorado y planificación académica cuando lo requiera el correcto funcionamiento del centro.",
-        "2. El desarrollo de la formación se ajustará en todo momento a la organización interna establecida por la Academia.",
-      ],
-    },
-    {
-      title: "2. HORARIO, ASISTENCIA Y PUNTUALIDAD",
-      rules: [
-        "3. El turno asignado al alumno es el establecido por la Academia.",
-        "4. Se establece un margen máximo de retraso de diez (10) minutos. Superado dicho tiempo, el acceso a clase será denegado, salvo que el alumno aporte justificante oficial que acredite el motivo del retraso.",
-        "5. El acceso tardío o la no incorporación a clase no dará derecho a recuperación automática de la sesión.",
-        "6. Las clases perdidas por absentismo no justificado se considerarán impartidas a todos los efectos.",
-        "7. El alumnado deberá respetar el normal desarrollo de la clase, evitando interrupciones o conductas que alteren el ritmo académico.",
-      ],
-    },
-    {
-      title: "3. NORMAS DE CONVIVENCIA E INSTALACIONES",
-      rules: [
-        "8. Está prohibido fumar, comer o utilizar dispositivos móviles durante las clases.",
-        "9. El acceso a las clases prácticas requiere el uso obligatorio del uniforme oficial de la Academia, compuesto por camisa o chaquetilla de la Academia, pantalón negro y calzado profesional ergonómico. En caso de no disponer del uniforme, el alumno podrá alquilarlo en recepción, sujeto a disponibilidad.",
-        "10. El alumno será responsable del uso adecuado de las instalaciones, maquinaria, materiales y recursos de la Academia.",
-        "11. Responderá de los daños ocasionados por uso negligente o indebido, asumiendo los costes de reparación o reposición.",
-        "12. El alumno deberá mantener las instalaciones y zonas de trabajo en correcto estado de orden y limpieza tras cada sesión.",
-        "13. El acceso a las instalaciones mediante sistema de control (torno) requiere carnet personal, intransferible y de uso exclusivo. Queda prohibido su préstamo o cesión a terceros.",
-      ],
-    },
-    {
-      title: "4. MATERIAL, EQUIPOS Y PRÁCTICAS",
-      rules: [
-        "14. El alumno deberá utilizar correctamente los materiales, herramientas y equipos del centro.",
-        "15. Los materiales o dispositivos procedentes de entidades externas serán responsabilidad exclusiva del alumno, no asumiendo la Academia reposición ni garantía.",
-        "16. El alumno deberá aportar los modelos necesarios para el desarrollo de las prácticas formativas.",
-        "17. El desarrollo de las prácticas estará sujeto a la organización interna y disponibilidad del centro.",
-        "18. El importe simbólico abonado por los modelos en concepto de colaboración será destinado íntegramente a la asociación externa e independiente \"El Privilegio\".",
-      ],
-    },
-    {
-      title: "5. KIT DE PRÁCTICAS Y MATERIAL FORMATIVO",
-      rules: [
-        "19. A través de la asociación externa e independiente \"El Privilegio\", se podrá entregar a los alumnos un kit de prácticas como material de apoyo formativo.",
-        "20. Este kit tiene carácter voluntario y, en caso de no desearlo, podrá ser devuelto para su gestión por la propia asociación.",
-        "21. El alumno deberá disponer y adquirir el material adicional necesario para el correcto desarrollo de su formación, conforme a las indicaciones del profesorado, quien informará en cada momento de los materiales requeridos.",
-      ],
-    },
-    {
-      title: "6. ASISTENCIA Y EVALUACIÓN ACADÉMICA",
-      rules: [],
-    },
-    {
-      title: "CRITERIOS GENERALES",
-      rules: [
-        "22. La evaluación del alumno será continua, atendiendo a aprovechamiento, evolución práctica, participación, asistencia, competencias adquiridas y cumplimiento de objetivos formativos.",
-      ],
-    },
-    {
-      title: "EXÁMENES Y CALIFICACIÓN",
-      rules: [
-        "23. Los exámenes teóricos y prácticos se realizarán en los últimos 2-3 días lectivos de cada módulo.",
-        "24. Ambos exámenes deberán aprobarse de forma independiente con una calificación mínima de cinco (5).",
-        "25. El alumno deberá realizar un mínimo de cinco (5) prácticas con clientes por módulo.",
-        "26. La calificación final será: 30% examen práctico, 30% examen teórico, 40% prácticas con clientes.",
-        "27. Para obtener el título, el alumno deberá superar todos los módulos.",
-        "28. El trabajo final de curso será obligatorio para la obtención del diploma.",
-      ],
-    },
-    {
-      title: "FALTAS DE ASISTENCIA",
-      rules: [
-        "29. El alumnado que supere el 25% de faltas de asistencia injustificadas en un módulo perderá el derecho a la evaluación del mismo, considerándose dicho módulo como no superado, siempre que las faltas no estén debidamente justificadas conforme a la normativa interna del centro.",
-        "30. En estos casos, el alumno deberá volver a matricularse en el módulo correspondiente y abonar nuevamente el importe establecido.",
-      ],
-    },
-    {
-      title: "CAMBIO DE TURNO",
-      rules: [
-        "31. El cambio de turno por parte del alumnado estará sujeto a disponibilidad de plazas y a la organización interna del centro.",
-        "32. En caso de ser autorizado, el cambio de turno conllevará el abono de una tasa administrativa de 150 €, en concepto de gestión y tramitación del expediente.",
-        "33. El cambio de turno no será efectivo hasta que se haya realizado el pago correspondiente y haya sido confirmada su aprobación por la dirección del centro.",
-      ],
-    },
-    {
-      title: "ALUMNOS INTERNACIONALES",
-      rules: [
-        "34. Los alumnos internacionales deberán cumplir la normativa general de evaluación del centro.",
-        "35. Deberán realizar exámenes de OMAT en los últimos 2-3 días de cada módulo.",
-        "36. La calificación mínima de OMAT será del 70%.",
-        "37. Deberán entregar los portfolios (libros de anillas OMAT) antes de finalizar el último módulo.",
-        "38. La falta de entrega impedirá la finalización del programa formativo.",
-      ],
-    },
-    {
-      title: "7. INTERRUPCIÓN DE LA FORMACIÓN, BAJA TEMPORAL Y REANUDACIÓN",
-      rules: [
-        `39. En caso de interrupción de la formación por motivos laborales, personales, familiares o de cualquier otra índole, deberá comunicarse a ${contactEmail}, registrándose como baja temporal.`,
-        "40. La baja temporal no suspenderá las obligaciones económicas del contrato ni en fechas ni en importe total del curso.",
-        "41. El alumno podrá solicitar la reanudación de la formación en un plazo máximo de 12 meses, contado desde la fecha de su matriculación, sujeto a disponibilidad de plazas, actualización del programa formativo y condiciones vigentes.",
-        "42. Transcurrido dicho plazo sin reincorporación, el contrato se considerará extinguido, debiendo formalizar nueva matrícula para continuar la formación, reconociéndose únicamente los módulos superados.",
-      ],
-    },
-    {
-      title: "8. CERTIFICACIONES INTERNACIONALES",
-      rules: [
-        "43. Una vez finalizada la formación, y siempre que el alumno haya superado satisfactoriamente todas las evaluaciones requeridas y abonado la totalidad del curso, la Academia procederá a la remisión del expediente académico a OMAT, entidad encargada de la tramitación ante el organismo certificador correspondiente en el Reino Unido.",
-        "44. El alumno reconoce que la Academia no emite certificados internacionales, actuando únicamente como intermediaria.",
-        "45. Los plazos de expedición dependen exclusivamente del organismo certificador, pudiendo oscilar entre seis (6) y doce (12) meses, sin responsabilidad para la Academia.",
-      ],
-    },
-    {
-      title: "9. COMUNICACIÓN Y CANALES OFICIALES",
-      rules: [
-        `46. Inasistencias e incidencias: ${contactEmail}`,
-        "47. Incidencias financieras SEQURA: 931760008.",
-        "48. Toda comunicación deberá realizarse por canales oficiales, no siendo válidas vías informales o personal no autorizado.",
-      ],
-    },
-    {
-      title: "10. CONVIVENCIA Y CONDUCTA",
-      rules: [
-        "49. El alumno deberá mantener en todo momento un comportamiento adecuado, respetuoso y acorde a la normativa del centro.",
-        "50. El incumplimiento de las normas de convivencia podrá dar lugar a medidas disciplinarias.",
-      ],
-    },
-    {
-      title: "11. NATURALEZA DEL SERVICIO",
-      rules: [
-        "51. La formación impartida tiene carácter académico y profesional, orientada a la mejora de la empleabilidad, sin que constituya garantía de obtención de empleo, prácticas o resultados concretos.",
-      ],
-    },
-    {
-      title: "12. NATURALEZA DEL REGLAMENTO",
-      rules: [
-        "52. El presente Reglamento tiene carácter interno y organizativo, siendo de obligado cumplimiento para todo el alumnado, con el fin de garantizar el correcto funcionamiento del centro y el adecuado desarrollo de la formación.",
-      ],
-    },
-  ];
-
-  let reglamentoY = titleY + 16;
-  const REGLAMENTO_HEADER_Y = titleY + 10;
-
-  reglamentoSections.forEach((section) => {
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(7.5);
-    pdf.setTextColor(41, 105, 208);
-
-    if (reglamentoY > 260) {
-      pdf.addPage();
-      pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
-      pdf.setDrawColor(0, 123, 255);
-      pdf.setLineWidth(6);
-      pdf.line(lineStartX, lineY, lineEndX, lineY);
-      reglamentoY = REGLAMENTO_HEADER_Y;
-    }
-
-    pdf.text(section.title, 10, reglamentoY);
-    reglamentoY += 4;
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(7);
-
-    section.rules.forEach((rule) => {
-      const ruleLines = pdf.splitTextToSize(rule, 190);
-      ruleLines.forEach((line: string) => {
-        if (reglamentoY > 270) {
-          pdf.addPage();
-          pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
-          pdf.setDrawColor(0, 123, 255);
-          pdf.setLineWidth(6);
-          pdf.line(lineStartX, lineY, lineEndX, lineY);
-          reglamentoY = REGLAMENTO_HEADER_Y;
-        }
-        pdf.text(line, 10, reglamentoY);
-        reglamentoY += 2.8;
-      });
-      reglamentoY += 1;
-    });
-
-    reglamentoY += 1.5;
-  });
-
-
-  // Añade la imagen del footer a la nueva página
-  pdf.addImage(
-    selectedFooter,
-    "PNG",
-    footerX,
-    footerY,
-    footerImageWidth,
-    footerImageHeight
-  );
-
-
-
-  // Restablece la fuente a normal para el resto del texto
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8);
-  pdf.setTextColor(0, 0, 0); // Restablecer color del texto a negro
-
-  // Ajustar la posición inicial para las normas
-  const startYRegulations8 = titleY + 20; // Empezar 20 unidades debajo del título
-  let currentY8 = startYRegulations8; // Posición actual en Y
-
-  // Añadir el texto "Leído y aceptado" con espacio
-  currentY8 += 160; // Espacio antes de "Leído y aceptado"
-  pdf.setFont("helvetica", "bold"); // Fuente en negrita
-  pdf.setFontSize(12); //
-  pdf.text("Leído y aceptado", 10, currentY8);
-  currentY8 += 4; // Espacio después de "Leído y aceptado"
-
-  // Añadir las líneas para las firmas
-  pdf.setFont("helvetica", "normal"); // Restablecer a normal
-  currentY8 += 10; // Espacio antes de las líneas de firma
-
-  // Línea 1: Firmado Sr/Sra: XXXX XXXX XXXX XXXX
-  pdf.text(
-    `Firmado Sr/Sra: ${contractData.alumn.firstName.toUpperCase()} ${contractData.alumn.lastName.toUpperCase()}`,
-    10,
-    currentY8
-  );
-  currentY8 += 10; // Espacio después de la primera línea
-
-  // Línea 2:
-  pdf.text(
-    `${contractData.alumn.documentType}: ${contractData.alumn.documentNumber}`,
-    10,
-    currentY8
-  );
-
-  // Añade la imagen del footer a la nueva página
-  pdf.addImage(
-    selectedFooter,
-    "PNG",
-    footerX,
-    footerY,
-    footerImageWidth,
-    footerImageHeight
-  );
   pdf.addPage();
   pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
   pdf.setDrawColor(0, 123, 255); // Color azul
