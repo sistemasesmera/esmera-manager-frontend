@@ -219,6 +219,7 @@ export function generateContractPDF(contractData: BackendContract) {
 
   // Añade una cuarta página en blanco
   pdf.addPage();
+  pdf.addPage();
   pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
   pdf.setDrawColor(0, 123, 255); // Color azul
   pdf.setLineWidth(6);
@@ -646,10 +647,6 @@ export function generateContractPDF(contractData: BackendContract) {
     footerImageWidth,
     footerImageHeight
   );
-  pdf.addPage();
-
-  // Añadir una nueva página para el contrato
-  // Añadir una nueva página para el contrato
   pdf.addPage();
   pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
   pdf.setDrawColor(0, 123, 255); // Color azul
